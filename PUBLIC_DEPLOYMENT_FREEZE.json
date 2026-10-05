@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "freeze_id": "PUBLIC_DEPLOYMENT_FREEZE_20261005_v1",
+  "frozen_at_utc": "2026-10-05T12:39:35Z",
+  "status": "PASS",
+  "application_url": "https://zj-power-trading-research.streamlit.app/",
+  "repository_url": "https://github.com/att984286-debug/zhejiang-power-trading-research",
+  "branch": "main",
+  "entrypoint": "app.py",
+  "release_id": "public-20261005-v1",
+  "mode": "read_only_public_filtered_frozen_results",
+  "published_code_and_results_commit": "5b5e4787fbd7df25a81da0ef77b3707243e95769",
+  "commit_binding_note": "Runtime code and results equal the first independent commit. The completion commit changes only README, acceptance documentation and this freeze; its hash is available from Git history, not self-embedded. Cloud source configuration and downloaded package fingerprints are checked; runtime git introspection is not claimed.",
+  "package": {
+    "path": "public_results/public-20261005-v1",
+    "manifest_sha256": "71b96f80cb9c62d306c5585391357fdbde6ced29fdc287233b938baf8db1578b",
+    "profile_sha256": "5b361d2550c81a1febdd3eed9efc0cf906ddc7240847162defb58847cc5bbe11",
+    "result_artifacts": 205,
+    "bytes": 11847537,
+    "business_recalculated": false,
+    "source_anchors": {
+      "G5": "67b5d3e54566a21910af1883ef4c842b9bbc4fb9f1e9e2ed2786314606c479e8",
+      "G6": "8c990fd2ecc708a59ef009ee2a366684f83d42c99e1faf763c7a00a1bde8c364",
+      "M5": "5dd761f3a318c0f4fa7dfa40acfb026c0c31fd647bef678c871766e4407e2dd3"
+    }
+  },
+  "runtime_files_sha256": {
+    "app.py": "ea8e1089e909874c5cd7d4a81f79b58ae5eeffa8ba758d1f52fb739142aa577a",
+    "config/PUBLIC_PACKAGE_ANCHOR.json": "5b8d7bd43d3a77809fdb9478dee23937ac900162244f36eadd097fb9da60ea4b",
+    "config/public_profile.json": "5b361d2550c81a1febdd3eed9efc0cf906ddc7240847162defb58847cc5bbe11",
+    ".streamlit/config.toml": "f27544165d71b3b6157f4ed1856913f26546946da8640baadeec00fbf69a64bc",
+    "requirements.txt": "8d8510936792abbc39f0e112c776e5940172bd413b7330766092a36c3995cc36",
+    "requirements-test.txt": "93c4ab5f175d24229e46ec70a8ecaeb6db8b36e3f54d8005808044c060acbc92",
+    "Dockerfile": "5b31079bb0a3eeae5be97110a99742be6139a0b8e7406369bbfc936a376c2d6b",
+    "scripts/audit_public.py": "cfc99efef7419c63a59f220a97147f830063ca1265620cfb4542884073026519",
+    "public_ui/__init__.py": "b18e74aba346600ef748b8d1c7680990d6f9415d8bf88111d9a798a60b52645f",
+    "public_ui/common.py": "7cbb1040080f796e64bb2e5955b99909ae9e541205fc3085c9f2b867976b7099",
+    "public_ui/export.py": "94f6b635fead2fb35ea1d544808f56b8caf9764960aec78bcee0dbe38f973136",
+    "public_ui/generation.py": "056fc275e37560c4bf43be903fc25464cce2ed48a9b4411a2559582fb6c89eae",
+    "public_ui/package.py": "1b5f9c05f7c1ec78bd8e82f063e7c9f3d478b0a2961965e44ce140ea067a4b46",
+    "public_ui/schema.py": "ae3a0517113a506e1cb3c8065037e71e21285c3c96704fede526ca026146c4f9",
+    "public_ui/storage.py": "033469691000e3c18f583162babd5a64a13fd3bb2ead9d0f9edcf252970a2e8c"
+  },
+  "environment": {
+    "python_target": "3.12",
+    "cloud_python_observed": "3.12.15",
+    "direct_dependencies": {"streamlit": "1.65.0", "plotly": "7.1.0", "pandas": "3.0.6", "openpyxl": "3.1.5"},
+    "cloud_pyarrow_observed": "24.0.0",
+    "d2_linux_pyarrow_observed": "25.0.1",
+    "dependency_note": "Cloud provider replaced pyarrow25.0.1 with24.0.0. D2 and Cloud are not claimed to have identical transitive dependencies; actual Cloud interactions and exports passed D4."
+  },
+  "gates": {
+    "D1": {"status": "PASS", "source_scalar_fields_checked": 7818520, "source_value_mismatches": 0},
+    "D2": {"status": "PASS", "os": "Linux aarch64", "private_mounts": 0, "tests_passed": 31, "approved_files": 228, "host_container_hashes_identical": true},
+    "D3": {"status": "PASS", "new_independent_git_history": true, "owner_credentials_imported_into_tests": false, "visibility": "public_and_searchable", "anonymous_cases_interactive": ["A", "B"]},
+    "D4": {
+      "status": "PASS", "anonymous_contexts": 2, "screenshots": 22, "browser_downloads": 10,
+      "interaction_measurements": 37, "decoded_websocket_frames": 1895,
+      "arrow_messages_decoded": 266, "arrow_rows_checked": 1430, "plotly_specs_checked": 42,
+      "collected_responses": 92, "saved_workbooks_checked": 5, "json_exports_checked": 5,
+      "saved_cell_values_checked": 86974, "javascript_errors": 0, "sensitive_findings": 0,
+      "first_render_ms": 13054, "maximum_measured_followup_ms": 2590,
+      "maximum_browser_export_bytes": 438852,
+      "mobile_viewport_tested": "390x844 overview",
+      "independent_mobile_or_second_network_tested": false,
+      "long_term_availability_certified": false,
+      "formal_non_inference_proof": false
+    }
+  },
+  "coverage": {
+    "storage": {"nodes": 4, "node_days": 200, "strategy_days": 1600, "strategies": 8},
+    "generation": {"groups": 3, "strategies": 4, "existing_g6_stress_cases": 3, "synthetic_month_days": 31, "non_synchronous_september_days": 25, "non_synchronous_october_days": 12},
+    "parallel_cases_not_combined_profit": true
+  },
+  "old_research_protection": {
+    "files_checked": 26055, "changed": 0, "missing": 0,
+    "g6_verify": "PASS", "old_phase1_phase2_source_hash_differences": "preserved_not_repaired"
+  },
+  "evidence_fingerprints": {
+    "D1_gate": "32841091ddfc22f9636517b8c892f01243b1e93fecc5bb15c744c4e1a7217cfa",
+    "D2_gate": "d5e41d4e19d963649cff57c0e9f5e8b20c09d63df1dd39896e4265c967a7b06a",
+    "D3_anonymous_smoke": "64fc3d2cbb9b30d056fb1aa3ce77ad6c23c70c812d324149f4d861543cf87e77",
+    "D4_browser": "5e28b8d1398adaf0030c24c53a4969b3a64992a7d4dd9317d0e33f00e3ad6335",
+    "D4_wire_and_exports": "4d5deabfce4f33bc311c5c8895e1b58a15875b6232c81c34a0142afca50d9e25",
+    "old_file_protection": "e6346eaf0524edefc73e6a022f03333b6471f23a3babcd7c07c2993eb1c9d77d"
+  },
+  "omissions": [
+    "Original purchased CSV/Excel/NWP, native private price sequences, chats, contacts, private source directories and credentials",
+    "Storage interval financial ledgers and copied-price forecasts that can reconstruct private native prices",
+    "Non-synchronous generation native power, net-quantity proxies, submissions and private stress ledger inputs",
+    "Full local source bridge and original private manifests; only safe logical identifiers and fingerprints are public"
+  ],
+  "required_semantics": ["research", "strict_not_certified", "synthetic", "non_synchronous", "oracle_non_executable", "unknown_not_zero", "evaluated_contribution_not_full_profit"],
+  "limitations": [
+    "Public-source fingerprints do not certify visitor access to or independent validation of private original inputs",
+    "Checks cover explicit public schema, native-sequence exposure and known algebraic reconstruction paths, not every possible inference",
+    "An initial Cloud connection failure recovered after one reboot; root cause unconfirmed and future availability not guaranteed",
+    "Early QA download mismatch occurred before an asynchronous selection rerun completed; failed evidence retained and all selections rechecked after real completion",
+    "Mobile viewport emulation is not an independent phone or cellular-network test"
+  ],
+  "stopped_scope": "Deployment and final documentation only; no new business functionality or research recalculation"
+}
