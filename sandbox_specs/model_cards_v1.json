@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "implementation_stage": "S1_contracts_only",
+  "models": {
+    "storage-throughput-v1": {
+      "source": "audited_existing_math_not_historical_runtime",
+      "units": {"power": "MW", "energy": "MWh", "price": "yuan/MWh", "amount": "yuan"},
+      "state": "battery-side stored energy",
+      "power_basis": "nonnegative grid-side charge and discharge",
+      "energy_transition": "E_next = E + eta_charge*C*dt - D*dt/eta_discharge",
+      "budget": "sum((C+D)*dt) <= 2*rated_capacity*remaining_cycles",
+      "objective": "sum(price*(D-C)*dt - simulated_degradation*(C+D)*dt)",
+      "terminal": "explicit fixed target; quick target equals current state",
+      "money_label_zh": "按你给的电价，预计收支差额",
+      "inventory_release": "shown separately; no zero inventory acquisition cost assumed",
+      "not_modelled": ["actual day-ahead commitment", "official deviation settlement", "real dispatch permission", "full_profit"],
+      "solver": "S2 HiGHS only, single thread; no CBC fallback or historical result fallback"
+    },
+    "generation-month-aggregate-v1": {
+      "quantity_basis": "user-assumed monthly net export, not vendor plant-internal power",
+      "physical_market_cash": "Q*P_asset for all Q; do not subtract mechanism volume",
+      "contract_cash_difference": "C_existing*(P_existing-P_delivery) + C_new*(P_new-P_delivery)",
+      "mechanism_adjustment": "M*(P_mechanism-P_reference); unknown price remains unknown",
+      "mechanism_quantity": "research M=min(r*Q, remaining_cap); explicit nonbinding assumption or unknown",
+      "candidate_base": "Q_base - M_base - C_existing; existing overcommitment is retained, not hidden by clipping",
+      "contracts": "chosen contract quantity fixed across all pressure scenarios",
+      "risk": "finite declared scenarios; baseline preference or minimum-scenario preference, not statistical CVaR",
+      "price_relations": "explicit linkage; asset, delivery and mechanism reference prices not automatically equal",
+      "dates_and_identity": "research month and rule reference date retained; no actual qualification certification",
+      "not_modelled": ["environment rights final settlement", "compensation", "taxes", "operating costs", "capital costs", "full_profit"]
+    }
+  },
+  "engineering_limits_not_market_rules": {
+    "power_mw": {"minimum": "0.001", "maximum": "10000"},
+    "capacity_mwh": {"minimum": "0.001", "maximum": "100000"},
+    "efficiency": {"minimum": "0.01", "maximum": "1"},
+    "remaining_cycles": {"minimum": "0", "maximum": "10"},
+    "absolute_price_yuan_per_mwh": "1000000",
+    "degradation_yuan_per_mwh": {"minimum": "0", "maximum": "100000"},
+    "monthly_energy_mwh": {"minimum": "0", "maximum": "100000000"},
+    "storage_intervals": 96,
+    "interval_minutes": [15, 30, 60],
+    "storage_time_scope": "single local market day; ending boundary may be next midnight",
+    "generation_unique_scenarios": 9,
+    "generation_candidates": 6,
+    "decimal_input_digits": 32,
+    "normalization_decimal_precision": 50
+  }
+}

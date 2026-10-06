@@ -1,0 +1,24 @@
+{
+  "source": "synthetic_fixed_actions_and_contracts",
+  "certifies_optimality": false,
+  "storage_fixed_four_intervals": {
+    "capacity_mwh": "200", "initial_mwh": "100", "interval_minutes": 15, "charge_efficiency": "0.95", "discharge_efficiency": "0.95", "degradation": "30",
+    "prices": ["100", "300", "600", "300"], "charge_mw": ["100", "0", "0", "0"], "discharge_mw": ["0", "0", "90.25", "0"],
+    "expected_energy_boundaries_mwh": ["100", "123.75", "123.75", "100", "100"],
+    "expected_charge_mwh": "25", "expected_discharge_mwh": "22.5625", "expected_throughput_mwh": "47.5625", "expected_cycles": "0.11890625",
+    "expected_revenue_yuan": "13537.5", "expected_charge_cost_yuan": "2500", "expected_degradation_yuan": "1426.875", "expected_contribution_yuan": "9610.625"
+  },
+  "storage_inventory_release": {
+    "initial_mwh": "126", "terminal_mwh": "100", "discharge_efficiency": "0.95", "price": "500", "degradation": "30",
+    "expected_grid_discharge_mwh": "24.7", "expected_contribution_yuan": "11609", "expected_inventory_delta_mwh": "-26", "full_profit": null,
+    "note_zh": "固定放电动作的现金差额包含释放期初库存，不能宣称新创造套利。"
+  },
+  "generation_mechanism_and_fixed_contract": {
+    "q_base": "20000", "q_low": "16000", "mechanism_ratio": "0.4", "mechanism_price": "400", "reference_price": "300", "asset_price": "300", "delivery_price": "300",
+    "existing_mwh": "2000", "existing_price": "360", "new_mwh": "4000", "new_price": "380",
+    "expected_base_mechanism_mwh": "8000", "expected_low_mechanism_mwh": "6400", "expected_total_contract_mwh": "6000",
+    "expected_base_components_yuan": ["6000000", "120000", "320000", "800000"], "expected_base_total_yuan": "7240000",
+    "expected_low_total_yuan": "5880000", "expected_low_high_price_total_yuan": "6600000",
+    "expected_capped_mechanism_mwh": "5000", "expected_base_remaining_commitment_mwh": "10000"
+  }
+}
