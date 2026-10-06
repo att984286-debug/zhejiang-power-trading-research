@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "release_id": "sandbox-public-20261006-v2",
+  "freeze_id": "SANDBOX_RELEASE_FREEZE_20261006_v2",
+  "frozen_at_utc": "2026-10-06T02:10:58Z",
+  "status": "PASS",
+  "application_url": "https://zj-power-trading-research.streamlit.app/",
+  "repository_url": "https://github.com/att984286-debug/zhejiang-power-trading-research",
+  "branch": "main",
+  "entrypoint": "app.py",
+  "published_and_tested_code_commit": "247db6dac1e0a992bdd3813932a05c2921105c63",
+  "published_and_tested_code_tree": "8c692b6a6ffae1074b943e5351d11c828cede1c9",
+  "pull_request_url": "https://github.com/att984286-debug/zhejiang-power-trading-research/pull/1",
+  "commit_binding_note": "The code commit above passed actual anonymous HTTPS acceptance. Completion commits add only this freeze and its acceptance document; their hashes are available in Git history and are not self-embedded. Remote Git files were hash-verified; remote runtime Git introspection is not claimed.",
+  "publication_method": "user_authorized_logged_in_browser_UI",
+  "mode": "read_only_frozen_replay_plus_isolated_user_scenario_calculation",
+  "source_binding": {
+    "source_map": "SANDBOX_SOURCE_MAP.json",
+    "source_map_sha256": "64660f419b0e7e82f7f111959ddcc5c5e490eca2c47e49ad48336fac7e52a975",
+    "mapped_files": 47,
+    "byte_identical_frozen_runtime_files": 24,
+    "remote_approved_delta_files": 58,
+    "remote_unapproved_changes": 0,
+    "remote_deletions": 0,
+    "app_sha256": "540506ebfc1bf673786376c6bf34a2eef5c1a521113586d37dc4a1ab7b454fac",
+    "requirements_runtime_sha256": "62962a23b72e7ad8c31735f7e672aa847e07bdac578fbde4819756ef738b4e9b"
+  },
+  "models": {
+    "core_version": "0.1.0-contracts",
+    "input_schema_version": 1,
+    "output_schema_version": 1,
+    "storage_model_version": "storage-throughput-v1",
+    "generation_model_version": "generation-month-aggregate-v1",
+    "quick_and_advanced_share_one_core_per_asset": true,
+    "user_scenario_results_are_not_historical_results": true
+  },
+  "preserved_research": {
+    "release_id": "public-20261005-v1",
+    "result_artifacts": 205,
+    "manifest_sha256": "71b96f80cb9c62d306c5585391357fdbde6ced29fdc287233b938baf8db1578b",
+    "original_public_freeze_sha256": "6c8ab5ecd67e0cf78146f9d554b13dc0f6cc6b963fb017ed69e42cb618440148",
+    "external_anchor_sha256": "5b8d7bd43d3a77809fdb9478dee23937ac900162244f36eadd097fb9da60ea4b",
+    "artifacts_schema_machine_exports_and_anchor_unchanged": true,
+    "old_research_business_recalculated": false,
+    "old_freezes_rewritten": false,
+    "protected_files_checked": 26595,
+    "protected_files_changed": 0,
+    "protected_files_missing": 0,
+    "old_phase1_phase2_source_hash_differences": "preserved_not_repaired"
+  },
+  "gates": {
+    "clean_linux": {
+      "status": "PASS",
+      "os": "Linux aarch64",
+      "python": "3.12.15",
+      "private_mounts": 0,
+      "tests_passed": 237,
+      "subtests_passed": 27,
+      "release_files_checked_before_document_freeze": 282,
+      "file_security_findings": 0,
+      "browser_states": 50,
+      "real_downloads": 15,
+      "anonymous_sessions": 2,
+      "image_sha256": "ce0d300db0ae63b9388c5b46c6a170819469956ee2600f30359f5e9f3a567738",
+      "base_image_note": "Official base image pull timed out; build used the existing public-only D2 dependency image. Acceptance containers had no mounts or private research inputs; this is not claimed as a newly pulled base image."
+    },
+    "anonymous_https": {
+      "status": "PASS",
+      "anonymous_sessions": 2,
+      "personal_cookies_or_credentials_imported": false,
+      "browser_states": 56,
+      "real_downloads": 15,
+      "network_and_protocol_records_checked": 5091,
+      "javascript_errors": 0,
+      "private_protocol_or_download_markers": 0,
+      "private_path_exception_used": false,
+      "excel_formula_cells": 0,
+      "default_business_language_defects": 0,
+      "actual_canvas_price_edit": true,
+      "changed_inputs_recalculated_and_export_bound": true,
+      "distinct_session_inputs_and_run_ids": true,
+      "both_replays_and_four_sandbox_modes_checked": true,
+      "mobile_viewport_tested": "390x844, overview and both cases' replay/quick/advanced modes",
+      "actual_plotly_hover_checked": true,
+      "edge_cases": ["zero", "negative_contribution", "negative_price", "infeasible", "invalid_efficiency", "duplicate_time", "unknown_mechanism", "stale_result", "explicit_preset_restore", "reset"],
+      "independent_phone_or_cellular_network_tested": false,
+      "formal_non_inference_proof": false,
+      "production_SLA_or_real_trading_certified": false
+    }
+  },
+  "cloud_environment_observed": {
+    "source": "native browser Manage app deployment log",
+    "updated_at_utc": "2026-10-06T02:03:45Z",
+    "python": "3.12.15",
+    "pulp": "2.9.0",
+    "highspy": "1.15.1",
+    "requested_pyarrow": "25.0.1",
+    "platform_replacement_pyarrow": "24.0.0",
+    "note": "Provider replaced PyArrow because of its own compatibility check. Linux and Cloud are not claimed to have identical transitive packages; the actual Cloud interactions and downloads passed this release's separate HTTPS gate. This is a deployment-log observation, not a complete remote inventory."
+  },
+  "evidence_fingerprints": {
+    "prepublication_gate": "f03d1883c2000a64d88cfce1da7284386fa18507e290e4f2bf39f975bfe93b25",
+    "remote_branch_verification": "257b3b09c0eec9ecb00494f68e4a99ad9317508fb3ef8ec5b0ec72a424e4dff1",
+    "remote_main_verification": "e5850a49fab28d462785ca568bdfb607caa3bce18eddf6794256f619bd87629e",
+    "linux_tests": "65c10a6bd2d971bde38d9a53a2c2b583018d8e510de951a6e3cb93af5c2cff10",
+    "linux_file_security": "0b136867e749938dbd6927bd5dd91383e870d3f41d075d1fabb0549b27e84c9e",
+    "linux_protocol_security": "46dead8a5abe26b48158f7c89b01825ab562e0188863ddeb45d5b7e0b254919a",
+    "cloud_runtime_observation": "32c8a7ed80d9dd6a061100eb3381e79b0898c1cb29964681f5c0ecf408958973",
+    "anonymous_https_browser": "30339bbfb438c80986f51c3077f1fd33fefb97c48d8620dc0e1eba1e02563d21",
+    "anonymous_https_security": "dfa3756a66415b37d7f09e425016d8a72ad8f113d4c647c6d01082cebd3127e7",
+    "cloud_qa_harness": "a76c215cfbd9c70207676ee0c234b62b35451ffee5e42abd23c8a749aba3a492"
+  },
+  "runtime_limits": {
+    "storage_intervals_max": 96,
+    "storage_days_max": 1,
+    "solver_threads": 1,
+    "solver_time_limit_seconds": 5,
+    "storage_wall_budget_seconds": 20,
+    "storage_tasks_per_service_process_max": 2,
+    "visitor_business_inputs_persisted": false,
+    "unknown_amounts_defaulted_to_zero": false
+  },
+  "omissions": [
+    "Original purchased power/NWP/price CSV and Excel files, chats, private identity paths, source manifests, knowledge base and credentials",
+    "Replay native price and non-synchronous power series, and interval financial pairs that can reconstruct protected replay inputs",
+    "Live market/asset telemetry, actual orders, contracts, approvals, dispatch confirmation and full enterprise costs",
+    "VPP, retail and user-side extensions; new historical training, optimization or settlement runs"
+  ],
+  "required_semantics": ["research_scenario", "synthetic_preset", "non_synchronous_replay", "strict_history_not_certified", "oracle_non_executable", "unknown_not_zero", "evaluated_contribution_not_full_profit"],
+  "failure_evidence_retained": [
+    "Initial connector write returned 403; publication resumed only after explicit user authorization for native browser UI",
+    "First Cloud QA used wrapper DOM instead of the app iframe; only the new QA locator scope was adjusted, not the product or business assertions",
+    "Earlier isolated-browser timing failures are retained alongside passing reruns"
+  ],
+  "rollback": {
+    "previous_public_commit": "593080667c7a4a9dee3b917c194c74e5081ce101",
+    "instructions": "docs/SANDBOX_ROLLBACK.md",
+    "live_rollback_exercised": false,
+    "git_history_force_rewritten": false
+  },
+  "stopped_scope": "S5 public calculation acceptance and release documentation only; no further feature or business development"
+}
