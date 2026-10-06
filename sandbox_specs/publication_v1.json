@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "S1_plan_only_not_published",
+  "sole_source": "original_project_new_sandbox_directories",
+  "allow_source_globs": ["decision_core/*.py", "sandbox_display/*.py"],
+  "allow_public_synthetic_globs": ["sandbox_specs/synthetic_*.json"],
+  "deny_anything_else": true,
+  "packaging": "one_way_generated_copy_with_source_and_destination_sha256",
+  "never_publish": ["src/", "presentation/", "config/", "data/", "docs/", "sandbox-s1-evidence/", "sandbox_specs/source_map.json", "knowledge_base/", "private_manifests/"],
+  "future_existing_display_files_allowed": ["app.py", "public_ui/common.py", "public_ui/storage.py", "public_ui/generation.py"],
+  "future_new_paths_allowed": ["sandbox_ui/", "decision_core/", "sandbox_display/", "sandbox_examples/", "SANDBOX_RELEASE_FREEZE.json"],
+  "future_dependency_file_allowed": "requirements.txt",
+  "existing_public_objects_immutable": ["public_results/", "config/", "public_ui/schema.py", "public_ui/package.py", "public_ui/export.py", "PUBLIC_DEPLOYMENT_FREEZE.json"],
+  "tests": "UI text/position assertions may change at S4; numeric, qualification, export and security assertions cannot be weakened",
+  "runtime": {"storage_solver": "HiGHS_only_no_fallback", "solver_threads": 1, "solver_time_limit_seconds": 5, "wall_time_seconds": 20},
+  "dependency_decision": "S1 contracts and mapping use Python standard library only. Solver exact versions are recorded from existing research environment for S2; no install or solver execution at S1.",
+  "release_conditions": ["S2 and S3 core verification", "S4 language and UI gates", "S5 clean Linux and anonymous new calculation verification", "no private research directory dependency"]
+}

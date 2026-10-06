@@ -1,0 +1,49 @@
+{
+  "id": "generation-month-aggregate-research-s3-v1",
+  "evidence_input": "ZJ_GENERATION_PREPLANNING_20261004",
+  "not_rule_profile_or_qualification_certificate": true,
+  "auto_apply_by_date_or_subject": false,
+  "rule_facts": [
+    {
+      "claim_ids": ["GF-01"],
+      "status": "confirmed",
+      "summary_zh": "新能源上网电量进入市场；机制差价另行结算，不是脱离市场的物理电量桶。",
+      "source": "发改价格〔2025〕136号，二（一）、三（四）（六）；浙发改能源〔2025〕250号，附件1（一）、附件2第2条",
+      "official_url": "https://www.ndrc.gov.cn/xwdt/tzgg/202502/t20250209_1396067.html"
+    },
+    {
+      "claim_ids": ["GF-06", "GF-08", "GF-09", "GF-10", "GF-13"],
+      "status": "confirmed",
+      "summary_zh": "机制量、年度累计、正负补差、类别月加权参考价和正式舍入各有规则；自己节点价不能自动代替正式参考价。",
+      "source": "浙发改能源〔2025〕250号，附件2第7、11—18、26条；冻结原件物理pp11—16",
+      "official_url": "https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web3586/site/attach/0/263a57cbda10408ca316d4b13cb54c9e.pdf"
+    },
+    {
+      "claim_ids": ["GF-18", "GF-19"],
+      "status": "confirmed",
+      "summary_zh": "正式电能量结算涉及日前中标、实时偏差及合约差价；合同交割价不自动等于电站资产节点价。",
+      "source": "浙发改能源〔2025〕273号，三（一）2/3及附件5第1节；浙江结算3.2 word/document.xml:P0290—P0305",
+      "official_url": "https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web2792/site/attach/0/deae2f6ee1cc4ab4a74c41698ea863da.pdf"
+    },
+    {
+      "claim_ids": ["GF-20", "GF-21", "GF-22"],
+      "status": "supported_interpretation",
+      "summary_zh": "冻结的具体绿电条款和合同路径供研究参考；环境价值、买方量、小时匹配和补偿不能由月度锁价公式替代。旧绿电全部废止关系仍不自动推断。",
+      "source": "浙江结算3.2 P0366—P0374；国家1656号第77/78条；GF-22为已冻结的适用关系解释",
+      "official_url": "https://www.ndrc.gov.cn/xxgk/zcfb/ghxwj/202512/P020251226622166557290.pdf"
+    }
+  ],
+  "research_assumptions_zh": [
+    "这是用户输入量价的月度聚合近似，不是正式逐时结算；净上网量不自动从购入厂内功率推出。",
+    "机制比例与余额是明确研究输入，不自动认证存量/增量/协议资格；比例乘电量的接口是情景模型，不覆盖所有主体规则。",
+    "基准剩余可承诺量按Q减机制研究量再减已有同类承诺定义，用于本工具权益/履约研究，不表示机制电量不能签中长期能量合同。",
+    "合约锁定以后保持固定；少发不重签；最少可履约量限制是工具研究约束，不是浙江规定。",
+    "月度资产捕获价、交付参考价和机制参考价由用户明确提供，同价代理只是假设；不用简单均价冒充正式月参考价。",
+    "金额输出按工具12位小数、数量按18位小数；不实施kWh正式结算舍入或年度钱包关账。",
+    "日期和研究身份留痕，不自动适用最新规则；2026新规则不能倒灌成2025真实历史认证。"
+  ],
+  "not_modelled": ["DA_bid_clearing_execution", "green_environment_settlement", "compensation", "official_recovery", "fees", "annual_rights_close", "full_profit"],
+  "unresolved_not_reopened": ["GF-14年度上限文字关系", "GF-22旧绿电全文件替代关系", "企业真实资格、正式参考价及真实合同"],
+  "references_are_not_numeric_defaults": true,
+  "private_paths_or_documents_included": false
+}

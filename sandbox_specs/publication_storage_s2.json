@@ -1,0 +1,18 @@
+{
+  "status": "S2_plan_only_not_published",
+  "extends": "publication_v1.json",
+  "new_source_files_allowed": [
+    "decision_core/storage_calculation.py",
+    "sandbox_compute/__init__.py",
+    "sandbox_compute/highs_adapter.py",
+    "sandbox_compute/storage_runner.py"
+  ],
+  "implementation_version": "storage-sandbox-engine-v1",
+  "contract_version": "0.1.0-contracts",
+  "explanation": "Keep the S1 contract and all historical files unchanged. Only the isolated adapter imports the SDK; the pure core never imports it or performs IO.",
+  "runtime": "requirements-storage-s2.txt; isolated Python 3.12 runtime verified locally; Linux/public verification remains S5",
+  "unknown_fields_allowed": false,
+  "research_result_overwrite_allowed": false,
+  "publish_scripts_tests_private_evidence": false,
+  "public_deployment_performed": false
+}

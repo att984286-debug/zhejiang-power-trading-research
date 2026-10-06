@@ -1,0 +1,13 @@
+{
+  "status": "S3_plan_only_not_published",
+  "extends": ["publication_v1.json", "publication_storage_s2.json"],
+  "new_source_files_allowed": ["decision_core/generation_calculation.py", "sandbox_compute/generation_runner.py"],
+  "public_reference_files_allowed": ["sandbox_specs/generation_scope_s3.json"],
+  "engine_version": "generation-sandbox-engine-v1",
+  "contract_version": "0.1.0-contracts",
+  "dependencies": "Python standard library only; no generation solver or model SDK",
+  "unknown_fields_allowed": false,
+  "publish_scripts_tests_private_evidence": false,
+  "old_research_result_overwrite_allowed": false,
+  "public_deployment_performed": false
+}

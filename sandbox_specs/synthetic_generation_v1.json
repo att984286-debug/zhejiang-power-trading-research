@@ -1,0 +1,12 @@
+{
+  "preset_id": "generation-quick-lockprice-v1",
+  "source": "synthetic_hand_entered_scenario_not_real_wind_farm_month",
+  "computed": false,
+  "quick_input": {
+    "scenario_month": "2026-10", "rule_reference_date": "2026-10-01", "expected_net_mwh": "20000",
+    "downside_percent": "20", "existing_contract_mwh": "2000", "contract_energy_price": "380",
+    "spot_prices": {"low": "200", "base": "300", "high": "500"},
+    "custom_new_mwh": null, "accept_preset": true
+  },
+  "note_zh": "明确不计算机制补差；已有2000兆瓦时不消失，原合同单价按380研究假设。"
+}

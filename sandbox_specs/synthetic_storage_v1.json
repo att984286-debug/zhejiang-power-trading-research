@@ -1,0 +1,17 @@
+{
+  "preset_id": "storage-quick-standard-v1",
+  "source": "synthetic_hand_entered_scenario_not_historical_input",
+  "computed": false,
+  "quick_input": {
+    "current_soc_percent": "65", "remaining_cycles": "0.6", "wait_until": "2026-10-05T20:00:00+08:00", "accept_preset": true,
+    "prices": [
+      {"interval_start": "2026-10-05T17:00:00+08:00", "interval_end": "2026-10-05T18:00:00+08:00", "forecast_price_yuan_per_mwh": "380"},
+      {"interval_start": "2026-10-05T18:00:00+08:00", "interval_end": "2026-10-05T19:00:00+08:00", "forecast_price_yuan_per_mwh": "420"},
+      {"interval_start": "2026-10-05T19:00:00+08:00", "interval_end": "2026-10-05T20:00:00+08:00", "forecast_price_yuan_per_mwh": "500"},
+      {"interval_start": "2026-10-05T20:00:00+08:00", "interval_end": "2026-10-05T21:00:00+08:00", "forecast_price_yuan_per_mwh": "620"},
+      {"interval_start": "2026-10-05T21:00:00+08:00", "interval_end": "2026-10-05T22:00:00+08:00", "forecast_price_yuan_per_mwh": "570"},
+      {"interval_start": "2026-10-05T22:00:00+08:00", "interval_end": "2026-10-05T23:00:00+08:00", "forecast_price_yuan_per_mwh": "400"}
+    ]
+  },
+  "note_zh": "只有合成输入，没有预设动作或收益答案；结束电量仍为65%。"
+}
