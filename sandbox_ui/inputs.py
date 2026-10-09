@@ -123,7 +123,7 @@ def generation_inputs(payload,mode,prefix):
         for line in GENERATION_ASSUMPTIONS_ZH:st.caption(line)
         st.caption("研究月份："+p["scenario_month"]+"；规则参考日："+p["rule_reference_date"]+"。不是实时行情、真实合同或企业完整利润。")
     else:
-        st.subheader("更多研究条件（输入更多，不代表更真实）")
+        st.subheader("更多研究条件")
         cols=st.columns(3)
         with cols[0]:
             key=prefix+"month"
