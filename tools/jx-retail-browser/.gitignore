@@ -1,0 +1,6 @@
+.qa/
+node_modules/
+__pycache__/
+*.xlsx
+*.xls
+*.pdf

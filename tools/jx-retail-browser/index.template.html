@@ -1,0 +1,51 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' blob:; worker-src blob:; style-src 'unsafe-inline'; connect-src 'none'; img-src data:; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="data:,"><title>江西零售申报助手 · 浏览器本地版</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#233342;font:16px/1.65 system-ui,-apple-system,'Microsoft YaHei',sans-serif}main{max-width:940px;margin:32px auto;padding:32px;background:#fff;border:1px solid #dce3e9;border-radius:10px}h1{font-size:25px;margin:0 0 8px}h2{font-size:19px}p{margin:10px 0}.small{font-size:14px;color:#596d7b}input[type=file],select,textarea{display:block;width:100%;padding:12px;border:1px solid #cbd5de;border-radius:5px;margin:12px 0;font:inherit}button,.button{display:inline-block;background:#24435a;color:#fff;padding:11px 20px;border:0;border-radius:5px;font:inherit;cursor:pointer;margin:8px 8px 8px 0;text-decoration:none}button:disabled{opacity:.4;cursor:wait}.secondary{background:#e9eef2;color:#24435a}.notice{background:#fff3e5;padding:14px;margin:16px 0;white-space:pre-wrap;overflow-wrap:anywhere}.row{padding:12px 0;border-bottom:1px solid #e5e9ec}.row b{display:inline-block;min-width:230px}section{margin-top:24px;border-top:1px solid #dce3e9;padding-top:12px}details{margin-top:12px}summary{cursor:pointer}@media(max-width:650px){main{margin:0;padding:20px}.row b{display:block}}</style>
+<main><h1>江西零售申报助手</h1><p>浏览器本地计算版 · Mac / Windows</p><p class="small">表格只在当前浏览器内处理，不上传。不需要服务器、Python或账号。首次打开需解压运行组件，请稍候。</p>
+<div id="status" class="notice" role="status">正在准备本地计算器…</div>
+<label>选择当月表格（可以多选或分次补齐）<input id="files" type="file" multiple accept=".xls,.xlsx,.pdf" disabled></label>
+<p class="small">价格定义表、当月申报表（含套餐）、全月曲线、计量点月电量。PDF仅支持原有打印分页曲线。</p>
+<button id="add" disabled>识别并保存到当前批次</button><button id="reset" class="secondary" disabled>新建批次</button>
+<section><h2 id="month">已识别资料</h2><div id="inputs"></div><button id="choose" class="secondary" hidden>使用所选版本</button><button id="calculate" disabled>计算并生成申报表</button></section>
+<section id="results" hidden><h2>计算结果</h2><p id="counts"></p><a id="download" class="button">下载申报结果</a><div id="issues"></div></section>
+<p class="small">当前批次保存在本页内存中，刷新或关闭会清空。请先下载结果；重新打开时可再次选入原表。计算完成不等于交易平台已审核。版本4.0.0。</p></main>
+<script id="assets" type="application/json">__ASSETS__</script>
+<script>
+const assets=JSON.parse(document.querySelector('#assets').textContent);
+const workerSource=__WORKER__;
+const worker=new Worker(URL.createObjectURL(new Blob([workerSource],{type:'text/javascript'})));
+let seq=0,pending=new Map(),ready=false,busy=false,state=null,downloadURL;
+const $=s=>document.getElementById(s);
+function controls(){for(const k of ['files','add','reset','choose'])$(k).disabled=!ready||busy;$('calculate').disabled=!ready||busy||!state||Object.keys(state.roles).some(k=>!state.selected[k]);}
+function request(action,args={},files=[]){return new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,action,args,files,...(action==='init'?{assets}: {})});});}
+worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.ok?p.resolve(data):p.reject(Error(data.error));};
+worker.onerror=e=>{for(const p of pending.values())p.reject(Error('计算器中断：'+e.message));pending.clear();$('status').textContent='本地计算器启动失败，请重新打开文件。';};
+async function action(label,fn){if(busy)return;busy=true;controls();$('status').textContent=label;try{await fn()}catch(e){$('status').textContent=String(e.message||e)}finally{busy=false;controls()}}
+function clearResult(){if(downloadURL)URL.revokeObjectURL(downloadURL);$('results').hidden=true;window.__report=null;}
+function showState(s){state=s;$('month').textContent=(s.month?s.month+' · ':'')+'已识别资料';$('inputs').replaceChildren();let conflict=false;
+ for(const [role,label] of Object.entries(s.roles)){
+  const row=document.createElement('div');row.className='row';const title=document.createElement('b');title.textContent=label;row.append(title);
+  const fs=s.files.filter(f=>f.roles.includes(role));
+  if(fs.length>1){conflict=true;const select=document.createElement('select');select.dataset.role=role;select.add(new Option('请选择本次采用的文件版本',''));for(const f of fs)select.add(new Option(f.name+' · '+f.sha256.slice(0,8),f.sha256));select.value=s.selected[role]||'';row.append(select)}
+  else row.append(document.createTextNode(fs.length?fs[0].name:'尚未选入'));
+  $('inputs').append(row);
+ }$('choose').hidden=!conflict;controls();
+}
+$('add').onclick=()=>action('正在识别文件用途、月份和内容…',async()=>{const fs=[...$('files').files];if(!fs.length)throw Error('请先选择文件');if(fs.length>20||fs.reduce((n,f)=>n+f.size,0)>200*1024*1024)throw Error('一次最多20个文件、合计不超过200MB');const files=await Promise.all(fs.map(async f=>({name:f.name,bytes:await f.arrayBuffer()})));const r=await request('files',{},files);clearResult();showState(r.result);$('files').value='';$('status').textContent=r.result.notices.join('\n')||'识别完成，资料齐全后可计算。';});
+$('choose').onclick=()=>action('正在选择资料版本…',async()=>{const choices={};for(const s of document.querySelectorAll('select[data-role]'))if(s.value)choices[s.dataset.role]=s.value;const r=await request('choose',{choices});clearResult();showState(r.result);$('status').textContent='已选择版本，旧结果已清除，请重新计算。';});
+$('reset').onclick=()=>action('正在新建批次…',async()=>{if(state?.files.length&&!confirm('当前批次将清空，是否已保存需要的结果？'))return;clearResult();showState((await request('reset')).result);$('status').textContent='请选择新批次的表格。';});
+$('calculate').onclick=()=>action('正在本地核验、计算并复读导出文件，请保持页面打开…',async()=>{
+ const r=await request('calculate');window.__report=r.report;const s=r.result.summary;
+ $('results').hidden=false;$('counts').textContent=`${r.result.month}：${s.customers}家客户，${s.meters}个计量点；已计算${s.calculated}家，待核对${s.pending}家。`;
+ if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(new Blob([r.bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+ $('download').href=downloadURL;$('download').download=r.result.month+(s.pending?'_待核对草稿':'_零售申报结果')+'.xlsx';$('download').textContent=s.pending?'下载待核对草稿':'下载申报结果';$('issues').replaceChildren();
+ for(const c of r.result.customers.filter(c=>c.status)){
+  const div=document.createElement('div');div.className='notice';const p=document.createElement('p');p.textContent=c.name+'：'+c.status;div.append(p);
+  if(c.large){const details=document.createElement('details');const sum=document.createElement('summary');sum.textContent='已有本月本户依据，登记修正方式';details.append(sum);const select=document.createElement('select');select.add(new Option('已核对的正差全精度比例修正','annex5_positive_monthly_full_precision'));select.add(new Option('已确认电网逾期未修正，按调平例外结算','overdue_balance'));const textarea=document.createElement('textarea');textarea.placeholder='填写本月本户已确认的依据，不能根据想要的价格倒算';const b=document.createElement('button');b.textContent='保存依据，随后重新计算';b.onclick=()=>action('登记依据…',async()=>{const r=await request('decide',{name:c.name,method:select.value,basis:textarea.value});clearResult();showState(r.result);$('status').textContent='依据仅绑定本月当前资料，请重新计算。';});details.append(select,textarea,b);div.append(details)}$('issues').append(div);
+ }
+ for(const x of r.result.unmatched){const p=document.createElement('p');p.className='small';p.textContent=x.name+'：曲线有记录，但本月名单无对应项，未加入申报。';$('issues').append(p)}
+ $('status').textContent=s.pending?'已生成草稿，待核对客户单价留空，请查看下方原因。':'计算与导出复读检查完成，可下载。';
+});
+request('init').then(async()=>{ready=true;showState((await request('reset')).result);$('status').textContent='本地计算器已就绪。无需联网，可选入当月表格。';controls()}).catch(e=>{$('status').textContent='初始化失败：'+e.message});
+</script></html>

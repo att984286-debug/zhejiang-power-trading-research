@@ -1,0 +1,50 @@
+{
+  "version": "4.0.0",
+  "runtime": "Pyodide 0.29.0",
+  "engine": "原Python Decimal引擎",
+  "engine_sha256": "4a06eaf5d22e1e17c9dbc84d045be31eef5d3722675b0d56fd0f8973d47e3993",
+  "html_sha256": "54ba6ac0fce2dc8422591c51e7e021183225c633beaa1362baa205d1db25d83e",
+  "regressions": [
+    {
+      "case": "september",
+      "meters": 124,
+      "quantity_exact": 124,
+      "price_within_0_001": 124,
+      "http_requests": 0,
+      "download_reread": true
+    },
+    {
+      "case": "october",
+      "meters": 121,
+      "quantity_exact": 121,
+      "price_within_0_001": 121,
+      "http_requests": 0,
+      "download_reread": true
+    },
+    {
+      "case": "updated-price",
+      "meters": 121,
+      "quantity_exact": 121,
+      "price_within_0_001": 121,
+      "http_requests": 0,
+      "download_reread": true
+    },
+    {
+      "case": "rejected-only",
+      "meters": 56,
+      "quantity_exact": 56,
+      "price_within_0_001": 56,
+      "http_requests": 0,
+      "download_reread": true
+    }
+  ],
+  "workflow_checks": {
+    "wrong_month": true,
+    "duplicate_dedupe": true,
+    "version_conflict_requires_selection": true,
+    "stale_result_hidden": true,
+    "unconfirmed_large_difference_blocked": true
+  },
+  "environment": "Mac Chrome，真实file://自包含HTML，所有HTTP请求为0；不含Windows实机认证",
+  "data_policy": "只提交程序、运行组件、许可证、汇总验收；原表、答案、账户和输出保留本机"
+}

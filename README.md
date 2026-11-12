@@ -64,3 +64,10 @@ python scripts/check_sandbox_runtime.py
 研究包仍为 `public-20261005-v1`，其 `PUBLIC_DEPLOYMENT_FREEZE.json` 是不可改写的首版历史记录。新版沙盒发布单独记录为 `sandbox-public-20261006-v2`；部署与匿名访问结果以新的 `SANDBOX_RELEASE_FREEZE.json` 为准，不继承旧验收数字。Cloud可能进行平台依赖替换，实际运行环境与洁净Linux的差别需在新冻结中如实登记。
 
 面试前先打开网站检查交互；保留本地完整研究版作断网备用。尚未实测独立手机蜂窝网络，不承诺任意国内网络永久稳定可达。
+
+
+## 江西零售申报：浏览器本地工具
+
+新增独立工具，不改变上述浙江研究原型。下载 [浏览器本地版HTML](docs/retail-local/index.html) 后，用Chrome或Edge打开并选择当月表格，计算后下载结果；无须安装Python或购买服务器/域名，运行不上传业务数据。约17MB。
+
+[使用与源码](tools/jx-retail-browser/README.md) · [脱敏验收记录](docs/retail-local/acceptance.json)。浏览器关闭或刷新会清空未保存批次；请保留原表并下载结果。
