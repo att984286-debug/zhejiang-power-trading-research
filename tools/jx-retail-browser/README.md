@@ -19,7 +19,7 @@
 
 ## 源码与构建
 
-`index.template.html`为界面，`worker.js`为隔离计算线程，`python/`为Python业务代码，`runtime/`为Pyodide 0.29.0，`wheels/`为固定版本纯Python依赖。`python build.py`在源码结构下生成自包含HTML；源码仓库构建脚本使用相应目录映射。
+`index.template.html.in`为不可直接运行的界面模板，`index.template.html`仅作为旧入口跳转，`worker.js`为隔离计算线程，`dist/python/`为Python业务代码，`runtime/`为Pyodide 0.29.0，`dist/vendor/wheels/`为固定版本纯Python依赖。`python build.py`生成`dist/index.html`。直接使用时请打开打包后的成品，不要打开`.in`模板。
 
 计算器复用原Python Decimal引擎，未转写JavaScript浮点公式。导出使用XlsxWriter；之后再读取生成XLSX核对目标数据和模板字段。适用当前已验证的江西套餐口径，不自动解释新政策。PDF仅支持已验证的打印分页表格，不进行OCR猜测。
 

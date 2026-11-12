@@ -4,11 +4,13 @@ const text=s=>new TextDecoder().decode(decode(s));
 onmessage=async ({data:m})=>{
  try{
   if(m.action==='init'){
+   postMessage({progress:'正在读取文件内置的运行组件…'});
    assets=m.assets;
    self.fetch=async url=>{const name=String(url).split('/').pop();if(!assets.runtime[name])throw Error('禁止网络请求：'+name);return new Response(decode(assets.runtime[name]),{headers:{'Content-Type':name.endsWith('.wasm')?'application/wasm':'application/octet-stream'}})};
    self.importScripts=(...urls)=>{for(const url of urls){const name=url.split('/').pop();if(!assets.runtime[name])throw Error('未知运行文件');(0,eval)(text(assets.runtime[name]))}};
    (0,eval)(text(assets.runtime['pyodide.js']));
    py=await loadPyodide({indexURL:'https://offline.invalid/',stdout:()=>{},stderr:()=>{}});
+   postMessage({progress:'正在准备Excel解析与精确计算模块…'});
    py.FS.mkdirTree('/code');py.FS.mkdirTree('/packages');py.FS.mkdirTree('/inputs');
    for(const [name,s] of Object.entries(assets.python))py.FS.writeFile('/code/'+name,decode(s));
    for(const [name,s] of Object.entries(assets.wheels))py.FS.writeFile('/'+name,decode(s));

@@ -3,7 +3,7 @@
   "runtime": "Pyodide 0.29.0",
   "engine": "原Python Decimal引擎",
   "engine_sha256": "4a06eaf5d22e1e17c9dbc84d045be31eef5d3722675b0d56fd0f8973d47e3993",
-  "html_sha256": "1c3978eb548ee1a4125a121674eaa07eb3ab0c1a5432668797ba739cfb33bcfd",
+  "html_sha256": "9539a96371c87c57318a4d820ccad696a8323a21f6700549dfd359323975b3ae",
   "regressions": [
     {
       "case": "september",
@@ -46,5 +46,24 @@
     "unconfirmed_large_difference_blocked": true
   },
   "environment": "Mac Chrome，真实file://自包含HTML，所有HTTP请求为0；不含Windows实机认证",
-  "data_policy": "只提交程序、运行组件、许可证、汇总验收；原表、答案、账户和输出保留本机"
+  "data_policy": "只提交程序、运行组件、许可证、汇总验收；原表、答案、账户和输出保留本机",
+  "entry_fix": {
+    "reason": "开发模板没有嵌入运行组件，旧入口现自动跳转到成品",
+    "probe": [
+      {
+        "file": "index.template.html",
+        "milliseconds": 3205,
+        "url": "dist/index.html",
+        "status": "本地计算器已就绪。无需联网，可选入当月表格。",
+        "errors": []
+      },
+      {
+        "file": "dist/index.html",
+        "milliseconds": 1995,
+        "url": "dist/index.html",
+        "status": "本地计算器已就绪。无需联网，可选入当月表格。",
+        "errors": []
+      }
+    ]
+  }
 }
