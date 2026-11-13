@@ -21,8 +21,10 @@ def restore(saved):
    for v in new.get(key,[]):
     if v[identity] not in values:values[v[identity]]=v
    old[key]=list(values.values())
+  for event in new.get('parser_migrations',[]):
+   if event not in old.setdefault('parser_migrations',[]):old['parser_migrations'].append(event)
   STORE.save(old)
- return STORE.load()
+ return STORE.reprocess_pending()
 def report(args):
  state=args.get('price_state') or {}
  if isinstance(state,str):state=json.loads(state)

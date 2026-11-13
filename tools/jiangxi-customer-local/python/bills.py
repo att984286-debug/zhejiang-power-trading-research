@@ -8,6 +8,8 @@ import pdfplumber
 from pypdf import PdfReader
 
 VERSION = '3.0.0'
+PARSER_REVISION = 'fixed-ratio-20261113'
+from meter_allocations import ratio_children,verify_allocations,prior_deduction
 KINDS = ['尖峰','峰','平','谷','深谷']
 NUM = r'-?\d[\d,]*(?:\.\d+)?'
 D = Decimal
@@ -86,7 +88,7 @@ def extract_pdf(path, filename=None):
                 secondary.append(fields(ct))
                 # Table body is the left 68% for the verified bill layouts.
                 boundaries=[w['x0'] for w in clean.extract_words() if w['text']=='用能分析']
-                edge=min(boundaries) if boundaries else page.width*.66
+                edge=min(boundaries) if boundaries else page.width if '示数类型' in ct and '计费电量' in ct else page.width*.66
                 table=clean.crop((0,0,edge,page.height)).extract_text(x_tolerance=3) or ''
                 meter=None
                 for line in table.splitlines():
@@ -113,6 +115,7 @@ def extract_pdf(path, filename=None):
                                 if reads and sum(reads)==billed and adjustments and all(x==0 for x in adjustments):
                                     meters.append({'meter':meter,'read':billed,'change':D(0),'billed':billed,'method':'换表多行读数合计与合并计费单元格核对'})
                                     break
+            verify_allocations(meters,ratio_children('\n'.join(all_filtered)),ratio_children(text),issues)
             evidence={}
             for key,label in [('q','本期电量'),('bill','本期电费'),('agency',purchase_fee(text)[0])]:
                 value=vals[key]; others=[v[key] for v in secondary if v[key] is not None]
@@ -139,7 +142,7 @@ def extract_pdf(path, filename=None):
                 'start':str(first) if first else None,'end':str(last) if last else None,
                 'month':first.strftime('%Y-%m') if first else '待核对','period_no':pn[1].strip() if pn else '',
                 **vals,'purchase_fee_kind':purchase_fee(text)[0],'buckets':qs,'meters':meters,'evidence':evidence,'issues':sorted(set(issues)),
-                'warnings':warnings,'removed_rotated_chars':rotated,
+                'warnings':warnings,'parser_revision':PARSER_REVISION,'removed_rotated_chars':rotated,
                 'raw_text':text,'filtered_text':'\n'.join(all_filtered)})
     return json.loads(dump(records))
 
@@ -156,17 +159,18 @@ def aggregate(records):
         if len({r['name'] for r in rs})>1:issues.append('同一户号出现不同户名，待核对')
         if len({r.get('purchase_fee_kind','代理购电电费') for r in rs})>1:issues.append('同月账单购电费用口径不同，未自动混合采用')
         reason='单张账单'
-        if len(rs)==1 and any(dec(m['change'])<0 for m in rs[0]['meters']):
+        if len(rs)==1 and any(prior_deduction(m) for m in rs[0]['meters']):
             issues.append('含前期电量扣减，但未找到对应前期账单，月资料可能不全')
         if len(rs)>1:
             # Merge only when a month-end residual explicitly deducts the earlier
             # billed quantities at each matching meter; dates alone never prove it.
-            residual=[r for r in rs if any(dec(m['change'])<0 for m in r['meters'])]
+            residual=[r for r in rs if any(prior_deduction(m) for m in r['meters'])]
             proven=False
             if len(residual)==1:
                 tail=residual[0];early=[r for r in rs if r is not tail]
                 changes=defaultdict(D); prior=defaultdict(D)
-                for m in tail['meters']:changes[m['meter']]+=-dec(m['change'])
+                for m in tail['meters']:
+                    if prior_deduction(m):changes[m['meter']]+=-dec(m['change'])
                 for r in early:
                     for m in r['meters']:prior[m['meter']]+=dec(m['billed'])
                 proven=(bool(prior) and all(changes[k]==prior[k] for k in set(changes)|set(prior))
@@ -195,6 +199,23 @@ class Store:
         return json.loads(self.db.read_text()) if self.db.exists() else {'version':VERSION,'files':[],'records':[]}
     def save(self,data):
         tmp=self.db.with_suffix('.tmp');tmp.write_text(dump(data));tmp.replace(self.db)
+    def reprocess_pending(self):
+        data=self.load()
+        affected={r['hash'] for r in data.get('records',[]) if r.get('parser_revision')!=PARSER_REVISION and
+            (any(dec(m['change'])<0 for m in r.get('meters',[])) or any('计量点' in i or '扣减' in i for i in r.get('issues',[])))}
+        changed=False
+        for sha in sorted(affected):
+            path=self.originals/(sha+'.pdf')
+            if not path.exists():continue
+            previous=[r for r in data['records'] if r['hash']==sha]
+            try:new=extract_pdf(path,previous[0]['filename'])
+            except Exception:continue  # Retain old evidence and blocking flags on failure.
+            data.setdefault('parser_migrations',[]).append({'hash':sha,'revision':PARSER_REVISION,
+                'old_issues':[r['issues'] for r in previous],'old_ids':[r['id'] for r in previous],'new_ids':[r['id'] for r in new]})
+            data['records']=[r for r in data['records'] if r['hash']!=sha]+new;changed=True
+        if changed:
+            self.save(data)
+        return data
     def upload(self,name,raw):
         suffix=Path(name).suffix.lower()
         if suffix not in ('.pdf','.xls','.xlsx'):raise ValueError('请选择PDF账单或XLS/XLSX曲线表。')
@@ -202,7 +223,9 @@ class Store:
         if len(raw)>30*1024*1024:raise ValueError('单文件限30MB。')
         data=self.load();sha=hashlib.sha256(raw).hexdigest()
         previous=next((f for f in data['files'] if f['hash']==sha),None)
-        if previous:return {'duplicate':True,'name':name,'accounts':previous.get('accounts',sorted({r['account'] for r in data.get('records',[])+data.get('curve_records',[]) if r['hash']==sha}))}
+        if previous:
+            self.reprocess_pending()
+            return {'duplicate':True,'name':name,'accounts':previous.get('accounts',sorted({r['account'] for r in data.get('records',[])+data.get('curve_records',[]) if r['hash']==sha}))}
         target=self.originals/(sha+suffix);target.write_bytes(raw)
         try:
             if suffix=='.pdf':rs=extract_pdf(target,Path(name).name)
