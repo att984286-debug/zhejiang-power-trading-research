@@ -14,9 +14,9 @@ function prepareReportPrint(){
  if(!customer)return false;
  const p=report.scenario.params;
  reportPrintState={title:document.title,folds:[...document.querySelectorAll('#report>details')].map(el=>({el,open:el.open}))};
- for(const item of reportPrintState.folds)if(!item.el.hidden)item.el.open=true;
+ for(const item of reportPrintState.folds)if(!item.el.hidden&&!item.el.classList.contains('method'))item.el.open=true;
  for(const {el} of reportPrintState.folds){
-  if(el.hidden)continue;
+  if(el.hidden||el.classList.contains('method'))continue;
   const copy=document.createElement('section');copy.className=el.className+' report-print-copy';
   const heading=document.createElement('h2');heading.textContent=el.querySelector('summary').textContent;copy.append(heading);
   for(const child of [...el.children]){if(child.tagName==='SUMMARY')continue;const body=child.cloneNode(true);if(body.id)body.id='print-'+body.id;copy.append(body)}

@@ -1,14 +1,14 @@
 """Evidence-preserving Jiangxi bill extraction. No tariff/profit assumptions."""
-import csv, hashlib, io, json, re, unicodedata
-from collections import defaultdict
+import csv, hashlib, io, json, re, unicodedata, math
+from collections import defaultdict, Counter
 from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 import pdfplumber
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
 
 VERSION = '3.0.0'
-PARSER_REVISION = 'fixed-ratio-20261113'
+PARSER_REVISION = 'orientation-fees-20261113'
 from meter_allocations import ratio_children,verify_allocations,prior_deduction
 KINDS = ['尖峰','峰','平','谷','深谷']
 NUM = r'-?\d[\d,]*(?:\.\d+)?'
@@ -25,11 +25,43 @@ def match_value(pattern, text):
     return amount(m[1]) if m else None
 
 def purchase_fee(text):
-    found=[]
+    found=[];text=unicodedata.normalize('NFKC',text)
     for label in ['代理购电电费','市场化购电电费','零售交易电费']:
-        v=match_value(r'(?:\(\d+\)\s*)?'+label+r'\s*('+NUM+r')(?=\s|$)',unicodedata.normalize('NFKC',text))
-        if v is not None:found.append((label,v))
+        pattern=r'\s*'.join(map(re.escape,label))+r'\s*('+NUM+r')(?=\s|$)'
+        for m in re.finditer(pattern,text):
+            # A quantity/rate/amount detail row is not a uniquely labelled fee total.
+            tail=text[m.end():].split('\n',1)[0]
+            if re.fullmatch(r'[ \t]+'+NUM+r'(?:[ \t]+'+NUM+r')*[ \t]*',tail):return ('购电费用列含多个数值，待核对',None)
+            found.append((label,amount(m[1])))
     return found[0] if len(found)==1 else ('购电费用项目缺失或存在多种口径，待核对',None)
+
+def normalize_pdf(raw):
+    """Normalize cardinal body-text orientation in memory; never alter originals.
+
+    Diagonal watermark characters do not vote. Ambiguous mixed directions retain
+    their original geometry and must still pass the ordinary independent checks.
+    """
+    changes=[]
+    with pdfplumber.open(io.BytesIO(raw)) as pdf:
+        for i,page in enumerate(pdf.pages):
+            counts=Counter()
+            for c in page.chars:
+                a,b,*_=c.get('matrix',(1,0,0,1,0,0))
+                angle=math.degrees(math.atan2(b,a))%360
+                cardinal=round(angle/90)*90%360
+                if abs((angle-cardinal+180)%360-180)<.5 and c.get('text','').strip():counts[cardinal]+=1
+            if not counts:continue
+            angle,count=counts.most_common(1)[0]
+            if angle and count>=30 and count>=sum(counts.values())*.9:
+                changes.append({'page':i+1,'clockwise_degrees':angle})
+    if not changes:return raw,[]
+    reader=PdfReader(io.BytesIO(raw));writer=PdfWriter()
+    turns={c['page']:c['clockwise_degrees'] for c in changes}
+    for i,page in enumerate(reader.pages):
+        if i+1 in turns:page.rotate(turns[i+1])
+        writer.add_page(page)
+    out=io.BytesIO();writer.write(out)
+    return out.getvalue(),changes
 
 def fields(text):
     s=compact(text)
@@ -56,13 +88,17 @@ def extract_pdf(path, filename=None):
     reader=PdfReader(io.BytesIO(raw))
     if reader.is_encrypted:raise ValueError('PDF已加密，请提供可读取的账单。')
     if len(reader.pages)>250:raise ValueError('单个PDF超过250页，请分批上传。')
+    normalized,orientation_changes=normalize_pdf(raw)
+    reader=PdfReader(io.BytesIO(normalized))
     texts=[p.extract_text() or '' for p in reader.pages]
+    if sum(len(compact(t)) for t in texts)<40:
+        raise ValueError('此PDF缺少可读取的账单文字层，属于扫描图片；当前版本不自动识别扫描件。')
     if not any('国网江西省电力' in compact(t) for t in texts[:2]):
         raise ValueError('未确认是国网江西账单，此版暂不自动采用其他地区账单。')
     starts=[i for i,t in enumerate(texts) if re.search(r'户\s*号\s*\d{8,}',t) and '本期电量' in t]
     if not starts:raise ValueError('未识别出带文字层的账单；扫描件或不支持的版式待人工核对，不进行OCR猜数。')
     records=[]
-    with pdfplumber.open(io.BytesIO(raw)) as pdf:
+    with pdfplumber.open(io.BytesIO(normalized)) as pdf:
         for j,start in enumerate(starts):
             end=starts[j+1] if j+1<len(starts) else len(texts)
             text='\n'.join(texts[start:end]); head=texts[start]; s=compact(head)
@@ -143,6 +179,7 @@ def extract_pdf(path, filename=None):
                 'month':first.strftime('%Y-%m') if first else '待核对','period_no':pn[1].strip() if pn else '',
                 **vals,'purchase_fee_kind':purchase_fee(text)[0],'buckets':qs,'meters':meters,'evidence':evidence,'issues':sorted(set(issues)),
                 'warnings':warnings,'parser_revision':PARSER_REVISION,'removed_rotated_chars':rotated,
+                'orientation_changes':[c for c in orientation_changes if start<c['page']<=end],
                 'raw_text':text,'filtered_text':'\n'.join(all_filtered)})
     return json.loads(dump(records))
 
@@ -187,6 +224,7 @@ def aggregate(records):
         partial=not any(r['start'] and r['start'][8:]=='01' and r['end'] and r['end'][8:]=='01' for r in rs)
         result.append({'account':account,'name':rs[0]['name'],'month':month,'bills':[r['id'] for r in rs],
             'count':len(rs),**totals,'buckets':qs,'shares':shares,'issues':sorted(set(issues)),
+            'purchase_fee_kind':' / '.join(sorted({r.get('purchase_fee_kind','代理购电电费') for r in rs})),
             'status':'已核对' if valid else '待核对','merge_reason':reason,'partial':partial,
             'baseline_price':(totals['agency']/totals['q']).quantize(D('.000001')) if totals['agency'] is not None and totals['q'] else None})
     return json.loads(dump(result))
@@ -202,17 +240,30 @@ class Store:
     def reprocess_pending(self):
         data=self.load()
         affected={r['hash'] for r in data.get('records',[]) if r.get('parser_revision')!=PARSER_REVISION and
-            (any(dec(m['change'])<0 for m in r.get('meters',[])) or any('计量点' in i or '扣减' in i for i in r.get('issues',[])))}
+            (r.get('issues') or any(dec(m['change'])<0 for m in r.get('meters',[])))}
+        affected.update(f['hash'] for f in data.get('files',[]) if f.get('suffix')=='.pdf' and f.get('error') and f.get('parser_revision')!=PARSER_REVISION)
+        affected.difference_update(f['hash'] for f in data.get('files',[]) if f.get('parser_revision')==PARSER_REVISION)
         changed=False
         for sha in sorted(affected):
             path=self.originals/(sha+'.pdf')
             if not path.exists():continue
             previous=[r for r in data['records'] if r['hash']==sha]
-            try:new=extract_pdf(path,previous[0]['filename'])
-            except Exception:continue  # Retain old evidence and blocking flags on failure.
+            file=next((f for f in data.get('files',[]) if f['hash']==sha),None)
+            name=file['name'] if file else previous[0]['filename']
+            try:new=extract_pdf(path,name)
+            except Exception as e:
+                # Retain old records and blocking flags; retry failed originals only
+                # once per parser revision, instead of on every browser refresh.
+                if file:
+                    file.update(error=f'未自动采用：{e}',parser_revision=PARSER_REVISION);changed=True
+                continue
             data.setdefault('parser_migrations',[]).append({'hash':sha,'revision':PARSER_REVISION,
                 'old_issues':[r['issues'] for r in previous],'old_ids':[r['id'] for r in previous],'new_ids':[r['id'] for r in new]})
-            data['records']=[r for r in data['records'] if r['hash']!=sha]+new;changed=True
+            retained=[r for r in data['records'] if r['hash']!=sha]
+            identities={r['id'] for r in retained}
+            fresh=[r for r in new if r['id'] not in identities]
+            data['records']=retained+fresh;changed=True
+            if file:file.update(error=None,bills=len(new),added=len(fresh),accounts=sorted({r['account'] for r in new}),parser_revision=PARSER_REVISION)
         if changed:
             self.save(data)
         return data
@@ -224,8 +275,9 @@ class Store:
         data=self.load();sha=hashlib.sha256(raw).hexdigest()
         previous=next((f for f in data['files'] if f['hash']==sha),None)
         if previous:
-            self.reprocess_pending()
-            return {'duplicate':True,'name':name,'accounts':previous.get('accounts',sorted({r['account'] for r in data.get('records',[])+data.get('curve_records',[]) if r['hash']==sha}))}
+            data=self.reprocess_pending()
+            previous=next(f for f in data['files'] if f['hash']==sha)
+            return {**previous,'duplicate':True,'name':name,'accounts':previous.get('accounts',sorted({r['account'] for r in data.get('records',[])+data.get('curve_records',[]) if r['hash']==sha}))}
         target=self.originals/(sha+suffix);target.write_bytes(raw)
         try:
             if suffix=='.pdf':rs=extract_pdf(target,Path(name).name)
@@ -238,7 +290,7 @@ class Store:
         key='records' if suffix=='.pdf' else 'curve_records'
         existing={r['id'] for r in data.get(key,[])};fresh=[r for r in rs if r['id'] not in existing]
         data.setdefault(key,[]).extend(fresh)
-        f={'name':Path(name).name,'hash':sha,'bills':len(rs),'added':len(fresh),'error':error,'suffix':suffix,'kind':'bill' if suffix=='.pdf' else 'curve','accounts':sorted({r['account'] for r in rs})}
+        f={'name':Path(name).name,'hash':sha,'bills':len(rs),'added':len(fresh),'error':error,'suffix':suffix,'kind':'bill' if suffix=='.pdf' else 'curve','accounts':sorted({r['account'] for r in rs}),'parser_revision':PARSER_REVISION}
         data['files'].append(f);self.save(data);return f
     def report(self,package='rule-full',linkage='10',service_fee='0',pack=None):
         data=self.load(); bill_rows=aggregate(data['records'])
@@ -258,8 +310,8 @@ class Store:
 
 def monthly_csv(report):
     buf=io.StringIO(newline='');w=csv.writer(buf)
-    w.writerow(['企业','户号','月份','账单数','本期电量(千瓦时)','代理购电电费(元)','本期总电费(元)',*['本期'+k+'电量(千瓦时)' for k in KINDS],*['本期'+k+'占比(%)' for k in KINDS],'核对状态','归集依据','疑点'])
+    w.writerow(['企业','户号','月份','账单数','本期电量(千瓦时)','账单购电费用(元)','购电费用项目名称','本期总电费(元)',*['本期'+k+'电量(千瓦时)' for k in KINDS],*['本期'+k+'占比(%)' for k in KINDS],'核对状态','归集依据','疑点'])
     for r in report['months']:
-        vals=[r['name'],r['account'],r['month'],r['count'],r['q'],r['agency'],r['bill'],*[r['buckets'].get(k) for k in KINDS],*[r['shares'].get(k) for k in KINDS],r['status'],r['merge_reason'],'；'.join(r['issues'])]
+        vals=[r['name'],r['account'],r['month'],r['count'],r['q'],r['agency'],r.get('purchase_fee_kind',''),r['bill'],*[r['buckets'].get(k) for k in KINDS],*[r['shares'].get(k) for k in KINDS],r['status'],r['merge_reason'],'；'.join(r['issues'])]
         w.writerow([("'"+v if isinstance(v,str) and v.startswith(('=','+','-','@')) else v) for v in vals])
     return ('\ufeff'+buf.getvalue()).encode('utf-8')
