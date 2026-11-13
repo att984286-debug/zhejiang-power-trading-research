@@ -251,7 +251,7 @@ class Store:
             good=[r for r in rows if r['account']==account and not r['issues']]
             customers.append({'account':account,'verified_months':len(good),'q':str(sum((D(r['q']) for r in good),D(0))),'agency':str(sum((D(r['agency']) for r in good if r['agency'] is not None),D(0)))})
         from pricing import calculate,PACK
-        return {**data,'version':VERSION,'archive_version':data.get('version'),'scenario':calculate(rows,linkage,service_fee,package=package,pack=pack or PACK),'customers':customers,'months':rows,'package':package,'pricing_status':'按所提供模板测算',
+        return {**data,'version':VERSION,'archive_version':data.get('version'),'scenario':calculate(rows,linkage,service_fee,package=package,pack=pack or PACK),'customers':customers,'months':rows,'bill_months':bill_rows,'package':package,'pricing_status':'按所提供模板测算',
             'pending':['7、8月按原表日前采购口径，其余月按实时，等待后续业务统一确认','服务费按当前选定套餐计取；佣金与返还尚未纳入'],
             'summary':{'accounts':len({r['account'] for r in rows}),'months':len(rows),'bills':len(data['records']),
                        'review':sum(bool(r['issues']) for r in rows),'merged':sum(r['count']>1 and not r['issues'] for r in bill_rows)}}

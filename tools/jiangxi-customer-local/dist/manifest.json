@@ -4,7 +4,7 @@
   "python/price_config.py": "ed308c0efdb10d16c005e98ccf6da385568422a4f842992cfb32eeb838499f46",
   "python/pricing.py": "143bd418728c84f58f18dd11c5d2a52cc7075a7b0706ad77c689513791882f7e",
   "python/curves.py": "ddef55b97393c7842759a058840bdef5f13d512e878a56e5fec16fab334bf206",
-  "python/bills.py": "7fe218bf0399059a7c2da60fa8b565799864c451aebae32f8cc052a8f13b4333",
+  "python/bills.py": "843e2e5437fbe483c53a8d050cdf6c65afccdb9deb687fd168f2f5e40b7304de",
   "python/prices/template_2026.json": "09a87c4d9a759eb651ec7f4179a0e524b552a9e9e2356a75b67f6cc560d52555",
   "runtime/pyodide.asm.js": "f1e70077bd701757b2798fc57f540fe39cf23d36ee5cd7c1a9b3a6f35cf500a7",
   "runtime/libopenssl-1.1.1w.zip": "8d073841eb93488e79f0f1f354cbe03dad17d6705e75249b07516040869a5ad1",
@@ -26,11 +26,11 @@
   "source/web/price-editor.js": "b1011b6be5e34011270e587f0c672ab9694fd6bd3e84d28dc48e3588969cbdac",
   "source/web/index.html": "6657678b75fbfc020c17bcd4ab75cfeed5a6ca21b80aa78806be730e808cf37a",
   "source/web/style.css": "6ebeac5fd1da12b559366e0e2833320216b294ccd3b8d7a859000d2fd337a2ab",
-  "source/web/app.js": "ffd01fddecba959c4f89ba82359ba8b4c605a1e17dd99a989582c63778869b88",
+  "source/web/app.js": "ae182b36ed849cdfae9376de4ce7f769f9c6048a3fd6efe547d5e4716fe39875",
   "bridge.py": "76974de57b0f24eb0936566263622d3e0af864cf0cac2c6728c4842b4dd0dca7",
   "adapter.js": "4a25a2ea2eec73e8245467a940ab12f0a616fbd98e1d387b2c6a5baaacf5641c",
   "worker.js": "bbfa223e77eac057143fafec8b3decf00205afca94c798378797edd965efb0b9",
   "build.py": "208cfa65091c5462a9eb9b090273e3d8c9f9b2651c75eb25c9a84cf850cdb87a",
   "dependencies.lock.json": "28c19f8a4d454b93c764282f51272fa2bb15b9b5bfed71d9b91093b996c7e0c0",
-  "dist/index.html": "5ddd426d20ee4ee5b0291b7ca22df66a0ff91238465f6767ffbc4a41e26e6c36"
+  "dist/index.html": "f6a43fff98ff8ca8b91088d8ae118314413f8a09d99e65d8a9e1706726a10678"
 }
