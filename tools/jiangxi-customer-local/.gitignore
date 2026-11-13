@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+node_modules/
+data/
+*.pdf
+*.xls
+*.xlsx
+*.png
+*backup*.json
+*备份*.json
+repository*/
+tests/offline.cjs
+tests/private_acceptance.cjs

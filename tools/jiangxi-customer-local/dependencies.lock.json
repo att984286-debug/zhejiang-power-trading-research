@@ -1,0 +1,70 @@
+{
+  "runtime/pyodide.asm.js": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.asm.js",
+    "sha256": "f1e70077bd701757b2798fc57f540fe39cf23d36ee5cd7c1a9b3a6f35cf500a7"
+  },
+  "runtime/libopenssl-1.1.1w.zip": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/libopenssl-1.1.1w.zip",
+    "sha256": "8d073841eb93488e79f0f1f354cbe03dad17d6705e75249b07516040869a5ad1"
+  },
+  "runtime/pyodide-lock.json": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide-lock.json",
+    "sha256": "701557726114e9a968d2088153414b2f126b8631aa734ed98eaf1797d4e4d087"
+  },
+  "runtime/cryptography-46.0.1-cp313-abi3-pyodide_2025_0_wasm32.whl": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/cryptography-46.0.1-cp313-abi3-pyodide_2025_0_wasm32.whl",
+    "sha256": "c3e558a314f8eb10f76bb02a2973a4c0f97dae42aae74f7230e82d99d55cb3cf"
+  },
+  "runtime/pyodide.asm.wasm": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.asm.wasm",
+    "sha256": "615172c6b2f5efe53e41d0201a98eb37c1f3aa7675d11cb06b6079b3a6b2bef5"
+  },
+  "runtime/six-1.17.0-py2.py3-none-any.whl": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/six-1.17.0-py2.py3-none-any.whl",
+    "sha256": "32a97ce76f718db29b29511588192894a1bcec5811b2a8d3a49c37c497505740"
+  },
+  "runtime/python_stdlib.zip": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/python_stdlib.zip",
+    "sha256": "e389fbdc394a00d31ff0624386c9e3e52e04727130ac73597a99c477afe4f1ca"
+  },
+  "runtime/pyodide.js": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js",
+    "sha256": "4b189b200cd62705bded5c3982e8ea9edfb4757aae03308f13f7431009992554"
+  },
+  "runtime/pycparser-2.22-py3-none-any.whl": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pycparser-2.22-py3-none-any.whl",
+    "sha256": "3322a697f8cc9539be8236eff37cdb1040e96eb9684a3610ba69c99c370c1e8c"
+  },
+  "runtime/cffi-1.17.1-cp313-cp313-pyodide_2025_0_wasm32.whl": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/cffi-1.17.1-cp313-cp313-pyodide_2025_0_wasm32.whl",
+    "sha256": "ad166ed3d2407d019362b1a2380cfc8ab0869908578dd20b12ce822f021ebac2"
+  },
+  "wheels/pypdf-6.10.0-py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/55/f2/7ebe366f633f30a6ad105f650f44f24f98cb1335c4157d21ae47138b3482/pypdf-6.10.0-py3-none-any.whl",
+    "sha256": "90005e959e1596c6e6c84c8b0ad383285b3e17011751cedd17f2ce8fcdfc86de"
+  },
+  "wheels/pdfplumber-0.11.9-py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/8b/c8/cdbc975f5b634e249cfa6597e37c50f3078412474f21c015e508bfbfe3c3/pdfplumber-0.11.9-py3-none-any.whl",
+    "sha256": "33ec5580959ba524e9100138746e090879504c42955df1b8a997604dd326c443"
+  },
+  "wheels/pdfminer_six-20251230-py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/65/d7/b288ea32deb752a09aab73c75e1e7572ab2a2b56c3124a5d1eb24c62ceb3/pdfminer_six-20251230-py3-none-any.whl",
+    "sha256": "9ff2e3466a7dfc6de6fd779478850b6b7c2d9e9405aa2a5869376a822771f485"
+  },
+  "wheels/openpyxl-3.1.5-py2.py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl",
+    "sha256": "5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2"
+  },
+  "wheels/et_xmlfile-2.0.0-py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl",
+    "sha256": "7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa"
+  },
+  "wheels/xlrd-2.0.1-py2.py3-none-any.whl": {
+    "url": "https://files.pythonhosted.org/packages/a6/0c/c2a72d51fe56e08a08acc85d13013558a2d793028ae7385448a6ccdfae64/xlrd-2.0.1-py2.py3-none-any.whl",
+    "sha256": "6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd"
+  },
+  "wheels/charset_normalizer-3.4.3-py3-none-any.whl": {
+    "url": "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/charset_normalizer-3.4.3-py3-none-any.whl",
+    "sha256": "5c6f0cf9d2fa4618ba46be7d5a3d7a1cb92efa11142b6fa9ecb63ac1a46569de"
+  }
+}
