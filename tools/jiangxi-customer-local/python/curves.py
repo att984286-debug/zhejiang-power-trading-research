@@ -21,7 +21,7 @@ def identifier(v):
  if not s:raise ValueError('户号或计量点缺失')
  return s
 
-def extract_curve(path,filename):
+def extract_curve(path,filename,sheet_name=None):
  path=Path(path);sha=hashlib.sha256(path.read_bytes()).hexdigest()
  if path.suffix=='.xls':
   import xlrd
@@ -35,13 +35,15 @@ def extract_curve(path,filename):
  for sn,rows in sheets.items():
   for i,row in enumerate(rows[:20]):
    h={str(v).strip():j for j,v in enumerate(row) if v is not None}
-   if all(k in h for k in required):candidates.append((sn,rows,i,h))
+   if all(k in h for k in required) and (sheet_name is None or sheet_name==sn):candidates.append((sn,rows,i,h))
+ if len(candidates)>1:
+  return [r for sn,_,_,_ in candidates for r in extract_curve(path,filename,sheet_name=sn)]
  if len(candidates)!=1:raise ValueError('未找到唯一的已确认平台48点曲线表；不要靠文件名猜测单位')
  sn,rows,head,h=candidates[0];records=[];footers=[];file_issues=[]
  for i,row in enumerate(rows[head+1:],head+2):
   name=str(row[h['电力用户名称']] or '').strip()
   if not name:continue
-  if name=='合计':footers.append(row);continue
+  if name=='合计':footers.append((row,len(records)));continue
   try:
    uid=identifier(row[h['用户号']]);meter=identifier(row[h['计量点ID']]);dt=row[h['读数日期']]
    ds=dt.date().isoformat() if isinstance(dt,datetime) else dt.isoformat() if isinstance(dt,date) else str(dt).strip()
@@ -53,12 +55,13 @@ def extract_curve(path,filename):
   sig=json.dumps([uid,meter,ds,name,[str(v) for v in values],str(total)],ensure_ascii=False)
   records.append({'id':hashlib.sha256(sig.encode()).hexdigest()[:24],'hash':sha,'filename':filename,'sheet':sn,'row':i,'name':name,'account':uid,'meter':meter,'meter_name':str(row[h.get('计量点名称',h['计量点ID'])]),'date':ds,'month':ds[:7],'slots_mwh':[str(v) for v in values],'daily_mwh':str(total),'issues':issues,'unit':'MWh','grain_minutes':30,'first_slot':'00:00-00:30','format_basis':'用户于2026-11-13确认该平台导出单位MWh，时段1为00:00—00:30'})
  if not records:raise ValueError('曲线没有有效日期记录')
- if len(footers)>1:raise ValueError('出现多个合计行，需确认分组边界')
- if footers:
-  footer=footers[0]
-  if number(footer[h['日电量合计']])!=sum(number(r['daily_mwh']) for r in records):file_issues.append('文件月合计与明细不一致')
-  for k in range(48):
-   if number(footer[h['时段'+str(k+1)+'电量']])!=sum(number(r['slots_mwh'][k]) for r in records):file_issues.append('时段'+str(k+1)+'合计与明细不一致')
+ start=0
+ for footer,end in footers:
+  segment=records[start:end]
+  def matches(group):
+   return bool(group) and number(footer[h['日电量合计']])==sum(number(r['daily_mwh']) for r in group) and all(number(footer[h['时段'+str(k+1)+'电量']])==sum(number(r['slots_mwh'][k]) for r in group) for k in range(48))
+  if not matches(segment) and not matches(records[:end]):file_issues.append('合计行与前段明细或累计明细不一致')
+  start=end
  for r in records:r['issues']+=file_issues
  return records
 

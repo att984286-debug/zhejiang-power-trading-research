@@ -2,7 +2,8 @@
 import base64,json
 from pathlib import Path
 from bills import Store,monthly_csv
-from pricing import scenario_csv
+from pricing import scenario_csv,PACK,calculate
+from price_config import apply_prices, import_prices
 STORE=Store('/data')
 def restore(saved):
  if not saved:return
@@ -23,7 +24,18 @@ def restore(saved):
   STORE.save(old)
  return STORE.load()
 def report(args):
- return STORE.report(linkage=args.get('linkage','10'),service_fee=args.get('service_fee','0'),package=args.get('package','linkage'))
+ state=args.get('price_state') or {}
+ if isinstance(state,str):state=json.loads(state)
+ pack=apply_prices(state)
+ r=STORE.report(linkage=args.get('linkage','10'),service_fee=args.get('service_fee','0'),package=args.get('package','rule-full'),pack=pack)
+ r['price_state']=state
+ if state.get('months'):
+  r['scenario']['notes']=[('采购采用本次自定义方案的各月比例、滚撮价及日前／实时选择，详见月度明细；未认证为实际买入成交。' if n.startswith('采购成本沿用原表') else n) for n in r['scenario']['notes']]
+ if state.get('months'):
+  r['baseline']=calculate(r['months'],args.get('linkage','10'),args.get('service_fee','0'),package=args.get('package','rule-full'))['customers']
+ return r
+def price_import(name,content):
+ return import_prices(name,base64.b64decode(content,validate=True))
 def upload(name,content):
  raw=base64.b64decode(content,validate=True)
  result=STORE.upload(name,raw)

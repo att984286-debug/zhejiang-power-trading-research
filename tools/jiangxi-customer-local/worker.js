@@ -15,7 +15,7 @@ self.onmessage=async({data:m})=>{try{
   self.fetch=async()=>{throw Error('计算阶段禁止网络访问')};postMessage({id:m.id,ok:true,result:{ready:true}});return;
  }
  py.globals.set('request_json',JSON.stringify(m.args||{}));
- const calls={restore:'bridge.restore(json.loads(request_json))',report:'bridge.report(json.loads(request_json))',upload:'bridge.upload(**json.loads(request_json))',export:'bridge.export(json.loads(request_json))'};
+ const calls={restore:'bridge.restore(json.loads(request_json))',report:'bridge.report(json.loads(request_json))',upload:'bridge.upload(**json.loads(request_json))',export:'bridge.export(json.loads(request_json))',price_import:'bridge.price_import(**json.loads(request_json))'};
  if(!calls[m.action])throw Error('未知操作');
  const result=await py.runPythonAsync('json.dumps('+calls[m.action]+',ensure_ascii=False)');postMessage({id:m.id,ok:true,result:JSON.parse(result)});
 }catch(e){postMessage({id:m.id,ok:false,error:String(e)})}};

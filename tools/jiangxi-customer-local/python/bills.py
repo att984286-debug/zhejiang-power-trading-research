@@ -22,11 +22,18 @@ def match_value(pattern, text):
     m = re.search(pattern, text)
     return amount(m[1]) if m else None
 
+def purchase_fee(text):
+    found=[]
+    for label in ['代理购电电费','市场化购电电费','零售交易电费']:
+        v=match_value(r'(?:\(\d+\)\s*)?'+label+r'\s*('+NUM+r')(?=\s|$)',unicodedata.normalize('NFKC',text))
+        if v is not None:found.append((label,v))
+    return found[0] if len(found)==1 else ('购电费用项目缺失或存在多种口径，待核对',None)
+
 def fields(text):
     s=compact(text)
     return {'q': match_value(r'本期电量('+NUM+r')千瓦时',s),
             'bill': match_value(r'本期电费('+NUM+r')元',s),
-            'agency': match_value(r'\(1\)\s*代理购电电费\s*('+NUM+r')(?=\s|$)',unicodedata.normalize('NFKC',text))}
+            'agency': purchase_fee(text)[1]}
 
 def buckets(text):
     s=compact(text)
@@ -107,7 +114,7 @@ def extract_pdf(path, filename=None):
                                     meters.append({'meter':meter,'read':billed,'change':D(0),'billed':billed,'method':'换表多行读数合计与合并计费单元格核对'})
                                     break
             evidence={}
-            for key,label in [('q','本期电量'),('bill','本期电费'),('agency','代理购电电费')]:
+            for key,label in [('q','本期电量'),('bill','本期电费'),('agency',purchase_fee(text)[0])]:
                 value=vals[key]; others=[v[key] for v in secondary if v[key] is not None]
                 if value is None:issues.append(label+'缺失或无法识别')
                 elif not others:issues.append(label+'未通过第二读取通道核对')
@@ -126,11 +133,12 @@ def extract_pdf(path, filename=None):
             pn=re.search(r'当前期数[ \t]*([^\r\n]*)',head)
             # Content identity ignores filenames, watermark timestamps and page ordering.
             signature=dump([name,account,dates,vals,qs,meters])
+            if purchase_fee(text)[0]!='代理购电电费':signature+=purchase_fee(text)[0]
             records.append({'id':hashlib.sha256(signature.encode()).hexdigest()[:24], 'hash':sha,
                 'filename':filename or path.name,'pages':list(range(start+1,end+1)), 'name':name,'account':account,
                 'start':str(first) if first else None,'end':str(last) if last else None,
                 'month':first.strftime('%Y-%m') if first else '待核对','period_no':pn[1].strip() if pn else '',
-                **vals,'buckets':qs,'meters':meters,'evidence':evidence,'issues':sorted(set(issues)),
+                **vals,'purchase_fee_kind':purchase_fee(text)[0],'buckets':qs,'meters':meters,'evidence':evidence,'issues':sorted(set(issues)),
                 'warnings':warnings,'removed_rotated_chars':rotated,
                 'raw_text':text,'filtered_text':'\n'.join(all_filtered)})
     return json.loads(dump(records))
@@ -146,6 +154,7 @@ def aggregate(records):
     for (account,month),rs in sorted(groups.items()):
         issues=[x for r in rs for x in r['issues']]
         if len({r['name'] for r in rs})>1:issues.append('同一户号出现不同户名，待核对')
+        if len({r.get('purchase_fee_kind','代理购电电费') for r in rs})>1:issues.append('同月账单购电费用口径不同，未自动混合采用')
         reason='单张账单'
         if len(rs)==1 and any(dec(m['change'])<0 for m in rs[0]['meters']):
             issues.append('含前期电量扣减，但未找到对应前期账单，月资料可能不全')
@@ -208,7 +217,7 @@ class Store:
         data.setdefault(key,[]).extend(fresh)
         f={'name':Path(name).name,'hash':sha,'bills':len(rs),'added':len(fresh),'error':error,'suffix':suffix,'kind':'bill' if suffix=='.pdf' else 'curve','accounts':sorted({r['account'] for r in rs})}
         data['files'].append(f);self.save(data);return f
-    def report(self,package='linkage',linkage='10',service_fee='0'):
+    def report(self,package='rule-full',linkage='10',service_fee='0',pack=None):
         data=self.load(); bill_rows=aggregate(data['records'])
         from curves import curve_months
         curves=curve_months(data.get('curve_records',[]),bill_rows)
@@ -218,9 +227,9 @@ class Store:
         for account in sorted({r['account'] for r in rows}):
             good=[r for r in rows if r['account']==account and not r['issues']]
             customers.append({'account':account,'verified_months':len(good),'q':str(sum((D(r['q']) for r in good),D(0))),'agency':str(sum((D(r['agency']) for r in good if r['agency'] is not None),D(0)))})
-        from pricing import calculate
-        return {**data,'version':VERSION,'archive_version':data.get('version'),'scenario':calculate(rows,linkage,service_fee,package=package),'customers':customers,'months':rows,'package':package,'pricing_status':'按所提供模板测算',
-            'pending':['7、8月按原表日前采购口径，其余月按实时，等待后续业务统一确认','当前服务费仅作用于非联动部分；佣金与返还尚未纳入'],
+        from pricing import calculate,PACK
+        return {**data,'version':VERSION,'archive_version':data.get('version'),'scenario':calculate(rows,linkage,service_fee,package=package,pack=pack or PACK),'customers':customers,'months':rows,'package':package,'pricing_status':'按所提供模板测算',
+            'pending':['7、8月按原表日前采购口径，其余月按实时，等待后续业务统一确认','服务费按当前选定套餐计取；佣金与返还尚未纳入'],
             'summary':{'accounts':len({r['account'] for r in rows}),'months':len(rows),'bills':len(data['records']),
                        'review':sum(bool(r['issues']) for r in rows),'merged':sum(r['count']>1 and not r['issues'] for r in bill_rows)}}
 

@@ -22,7 +22,7 @@ if(!fixture)throw Error('Usage: node tests/smoke.cjs /path/to/fictional-fixture.
  const simultaneous=await page.evaluate(()=>Promise.all(Array.from({length:6},(_,i)=>fetch('/api/report?linkage='+i+'&service_fee=0').then(r=>r.json()))));
  assert.ok(simultaneous.every(r=>r.scenario&&!r.error));
  // UI parameter changes and downloads are also browser-local.
- await page.locator('#fee').fill('5');await page.waitForFunction(()=>!document.body.classList.contains('busy')&&document.querySelector('#feehint').textContent.includes('非联动'));
+ await page.locator('#fee').fill('5');await page.waitForFunction(()=>!document.body.classList.contains('busy')&&document.querySelector('#feehint').textContent.includes('全电量'));
  const csvEvent=page.waitForEvent('download');await page.locator('#export').click();const csv=await csvEvent;assert.match(csv.suggestedFilename(),/\.csv$/);
  const csvPath=path.join(os.tmpdir(),'jx-fictional-report-'+process.pid+'.csv');await csv.saveAs(csvPath);assert.match(fs.readFileSync(csvPath,'utf8'),/2026-07/);
  await page.locator('#files').setInputFiles(path.resolve(fixture));await page.waitForFunction(()=>document.querySelector('#progress').textContent.includes('跳过重复'));
