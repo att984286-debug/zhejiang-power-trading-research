@@ -1,10 +1,11 @@
 {
+  "python/meter_rows.py": "8ceb629e5adf07594cb1ea0b3b8eb82d12da3d192c1b3237d9ce16ac632ca41a",
   "python/bridge.py": "76974de57b0f24eb0936566263622d3e0af864cf0cac2c6728c4842b4dd0dca7",
   "python/meter_allocations.py": "0cc79ec441c6f21ea5384ab151b3600d5d78bbb924871948d9100907cac27272",
   "python/price_config.py": "ed308c0efdb10d16c005e98ccf6da385568422a4f842992cfb32eeb838499f46",
   "python/pricing.py": "143bd418728c84f58f18dd11c5d2a52cc7075a7b0706ad77c689513791882f7e",
   "python/curves.py": "ddef55b97393c7842759a058840bdef5f13d512e878a56e5fec16fab334bf206",
-  "python/bills.py": "5cced223ea02cd45c823580f6687014e6ccd4ea753f1b1eee014c9187e582114",
+  "python/bills.py": "9efea58fdc27a250d655c95ab78889de15b136fe9d60f9b39bb4387fd51cf0fa",
   "python/prices/template_2026.json": "09a87c4d9a759eb651ec7f4179a0e524b552a9e9e2356a75b67f6cc560d52555",
   "runtime/pyodide.asm.js": "f1e70077bd701757b2798fc57f540fe39cf23d36ee5cd7c1a9b3a6f35cf500a7",
   "runtime/libopenssl-1.1.1w.zip": "8d073841eb93488e79f0f1f354cbe03dad17d6705e75249b07516040869a5ad1",
@@ -33,5 +34,5 @@
   "worker.js": "bbfa223e77eac057143fafec8b3decf00205afca94c798378797edd965efb0b9",
   "build.py": "d154f588591fc985bc162e5dfd84980faa67dcf8a6bd515576bf80542640dd3b",
   "dependencies.lock.json": "28c19f8a4d454b93c764282f51272fa2bb15b9b5bfed71d9b91093b996c7e0c0",
-  "dist/index.html": "17f8dfc8d621fcecd2be2de9a6b949531a06110b9c34c0da7d3e83e7d9b9f614"
+  "dist/index.html": "079d7f618f946f226678b24d940241dbb0430d607aad3ee4370ee3f184ed9d25"
 }

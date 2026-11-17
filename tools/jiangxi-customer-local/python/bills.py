@@ -8,8 +8,9 @@ import pdfplumber
 from pypdf import PdfReader, PdfWriter
 
 VERSION = '3.0.0'
-PARSER_REVISION = 'orientation-fees-20261113'
+PARSER_REVISION = 'multirow-totals-20261117'
 from meter_allocations import ratio_children,verify_allocations,prior_deduction
+from meter_rows import total_row_groups,merge_total_group
 KINDS = ['尖峰','峰','平','谷','深谷']
 NUM = r'-?\d[\d,]*(?:\.\d+)?'
 D = Decimal
@@ -126,13 +127,18 @@ def extract_pdf(path, filename=None):
                 boundaries=[w['x0'] for w in clean.extract_words() if w['text']=='用能分析']
                 edge=min(boundaries) if boundaries else page.width if '示数类型' in ct and '计费电量' in ct else page.width*.66
                 table=clean.crop((0,0,edge,page.height)).extract_text(x_tolerance=3) or ''
+                multiline={g['line']:g for g in total_row_groups(table) if len(g['rows'])>1}
+                independent=total_row_groups(texts[pg]) if multiline else []
                 meter=None
-                for line in table.splitlines():
+                for line_no,line in enumerate(table.splitlines()):
                     mi=re.search(r'计量点编号[:：](\d+)',compact(line))
                     if mi:meter=mi[1]
                     if '正向有功（总）' in line:
                         nums=re.findall(NUM,line.split('正向有功（总）',1)[1])
                         if len(nums)>=8 and meter:
+                            if line_no in multiline:
+                                meters.append(merge_total_group(multiline[line_no],independent,pg+1,issues))
+                                continue
                             v=list(map(amount,nums[:8]))
                             if v[3]+v[4]+v[5]+v[6]!=v[7]:issues.append('计量点抄见、加减与计费电量不平')
                             meters.append({'meter':meter,'read':v[3],'change':v[6],'billed':v[7]})
