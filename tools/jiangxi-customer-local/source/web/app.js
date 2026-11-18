@@ -16,8 +16,16 @@ function billStructure(r){
  const bill=(report.bill_months||[]).find(b=>b.account===r.account&&b.month===r.month);
  return bill&&!bill.issues.length&&!bill.partial?bill:null;
 }
+function usageStructure(r){return billStructure(r)||(r.curve_structure?.status==='已核对'?r.curve_structure:null)}
+function structureEnergy(r,kind){const s=usageStructure(r),v=s?.buckets?.[kind];return v===null||v===undefined?'—':s.source_type==='curve'?Number(v).toLocaleString('zh-CN',{maximumFractionDigits:3}):fmt(v,0)}
+function structureNote(r){
+ if(r.source_type!=='curve')return '';
+ if(billStructure(r))return '账单口径，按账单总电量计算';
+ if(r.curve_structure?.status==='已核对')return '曲线计算，按曲线总电量计算';
+ return (r.curve_structure?.issues||['缺少可用曲线分时数据']).join('；');
+}
 function billSharesHTML(r){
- const shares=billStructure(r)?.shares;
+ const shares=usageStructure(r)?.shares;
  const value=k=>shares?.[k]===null||shares?.[k]===undefined?'—':fmt(shares[k],2)+'%';
  return `<div class="tou-shares"><div class="tou-other">${['尖峰','峰','平'].map(k=>`<span>${k} ${value(k)}</span>`).join('')}</div><div class="tou-emphasis tou-valley"><span>谷段</span><strong>${value('谷')}</strong></div><div class="tou-emphasis tou-deep"><span>深谷段</span><strong>${value('深谷')}</strong></div></div>`;
 }
@@ -38,7 +46,7 @@ function render(){
  profitChart(rows);priceChart(rows);
  $('breakeven').innerHTML=c.break_even_fee?`<strong>谈价参考</strong><span>当前联动比例下，打平服务费约需 <b>${ranged(c.break_even_fee)} 厘/度</b>。 ${Number(p.params.service_fee)<Number(c.break_even_fee.high)?'可调整上方服务费，直接查看结果。':'当前输入已达到此试算打平水平。'}</span>`:`<strong>谈价参考</strong><span>${p.params.linkage==='100'&&p.params.package!=='rule-full'?'100%联动时，原表服务费仅加在非联动部分，调整服务费不会改变收益。':'暂无可计算月份。'}</span>`;
  $('method').innerHTML=`<p><strong>当前试算：联动 ${esc(p.params.linkage)}% · 服务费 ${esc(p.params.service_fee)} 厘/度</strong></p><ul>${p.notes.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul><p>价格版本：${esc(p.price_pack.id)} · 来源：${esc(p.price_pack.source_name)} / ${esc(p.price_pack.sheet)}<br>原表指纹：${esc(p.price_pack.source_sha256)}</p><a id="audit" href="/api/audit.json?${query(p.params)}">下载本次完整计算与来源记录</a>`;
- $('archive').innerHTML=`<p>${report.summary.bills}张账单，${report.summary.merged}个分次结算月份已归集；以下仅显示当前客户。</p><div class="scroll"><table><thead><tr><th>月份</th><th>账单购电费用 / 元</th><th class="tou-energy-cell"><div class="tou-energy-title">分时电量 / 度</div><div class="tou-energy-grid"><span>尖峰</span><span>峰</span><span>平</span><span>谷</span><span>深谷</span></div></th><th>账单分时电量占比</th></tr></thead><tbody>${sourceRows.map(r=>`<tr><td>${esc(r.month)}</td><td>${fmt(r.agency)}</td><td class="tou-energy-cell"><div class="tou-energy-grid">${['尖峰','峰','平','谷','深谷'].map(k=>'<span>'+fmt(billStructure(r)?.buckets?.[k],0)+'</span>').join('')}</div></td><td class="share-cell">${billSharesHTML(r)}${r.source_type==='curve'?'<small>'+(billStructure(r)?'账单口径，按账单总电量计算':'无可用账单占比，曲线见48点图')+'</small>':''}</td></tr>`).join('')}</tbody></table></div><p class="muted small">占比＝该类账单电量÷当月账单总电量，按电量计算，保留两位小数后合计可能略有舍入差异；缺失显示—。</p>`;
+ $('archive').innerHTML=`<p>${report.summary.bills}张账单，${report.summary.merged}个分次结算月份已归集；以下仅显示当前客户。</p><div class="scroll"><table><thead><tr><th>月份</th><th>账单购电费用 / 元</th><th class="tou-energy-cell"><div class="tou-energy-title">分时电量 / 度</div><div class="tou-energy-grid"><span>尖峰</span><span>峰</span><span>平</span><span>谷</span><span>深谷</span></div></th><th>分时电量占比</th></tr></thead><tbody>${sourceRows.map(r=>`<tr><td>${esc(r.month)}</td><td>${fmt(r.agency)}</td><td class="tou-energy-cell"><div class="tou-energy-grid">${['尖峰','峰','平','谷','深谷'].map(k=>'<span>'+structureEnergy(r,k)+'</span>').join('')}</div></td><td class="share-cell">${billSharesHTML(r)}${r.source_type==='curve'?'<small>'+esc(structureNote(r))+'</small>':''}</td></tr>`).join('')}</tbody></table></div><p class="muted small">占比＝该类电量÷对应来源的月总电量。曲线按当月模板时段分类汇总；有可用账单时保留账单口径。占比保留两位小数，合计可能略有舍入差异；缺失显示—。</p>`;
  $('feehint').textContent=p.params.package==='rule-full'?'按全电量收取浮动费，100%联动仍生效。':'沿用模板：加在非联动部分，100%联动时不生效。';
  $('curvepanel').hidden=!rows.some(r=>r.source_type==='curve');$('curvechart').innerHTML=rows.filter(r=>r.source_type==='curve').map(curveGraph).join('');
  const exportParams={linkage:p.params.linkage,service_fee:p.params.service_fee,package:p.params.package,account:selected};$('export').href='/api/scenario.csv?'+query(exportParams);

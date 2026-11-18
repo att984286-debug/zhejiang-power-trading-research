@@ -1,0 +1,21 @@
+const{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright'),path=require('path'),fs=require('fs'),assert=require('node:assert/strict');
+(async()=>{
+ const b=await chromium.launch({channel:'chrome',headless:true}),c=await b.newContext({offline:true,viewport:{width:1440,height:1000}}),p=await c.newPage(),errors=[],http=[];
+ p.setDefaultTimeout(180000);p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(/^https?:/.test(r.url()))http.push(r.url())});
+ await p.goto('file://'+path.resolve(__dirname,'../dist/index.html'));await p.waitForFunction(()=>!document.querySelector('#files').disabled,null,{timeout:120000});
+ const curves=Array.from({length:31},(_,i)=>({id:'fictional-curve-'+i,hash:'c'.repeat(64),filename:'虚构曲线.xlsx',sheet:'虚构',row:i+2,name:'曲线占比演示（虚构）',account:'CURVE-SHARES-DEMO',meter:'METER',date:'2026-07-'+String(i+1).padStart(2,'0'),month:'2026-07',slots_mwh:Array(48).fill('0.001'),daily_mwh:'0.048',issues:[]}));
+ const tmp=path.join(require('os').tmpdir(),'jx-curve-shares-'+process.pid+'.json');
+ const restore=async archive=>{fs.writeFileSync(tmp,JSON.stringify({format:'jx-customer-local-v1',archive,originals:[]}));await p.evaluate(()=>document.querySelector('#progress').textContent='正在恢复测试资料');await p.locator('#restore-local').setInputFiles(tmp);await p.waitForFunction(()=>document.querySelector('#progress').textContent==='本地备份已恢复',null,{timeout:180000})};
+ await restore({version:'3.0.0',records:[],curve_records:curves,files:[]});
+ assert.equal(await p.locator('#archive .tou-valley strong').textContent(),'20.83%');assert.equal(await p.locator('#archive .tou-deep strong').textContent(),'8.33%');
+ assert.match(await p.locator('#archive .share-cell small').textContent(),/曲线计算/);
+ assert.deepEqual(await p.locator('#archive tbody .tou-energy-grid span').allTextContents(),['124','248','682','310','124']);
+ assert.equal(await p.locator('#archive tbody tr td').nth(1).textContent(),'—');
+ await p.evaluate(()=>document.querySelector('.archive').open=true);await p.evaluate(()=>prepareReportPrint());await p.emulateMedia({media:'print'});
+ assert.equal(await p.locator('#print-archive .tou-valley strong').textContent(),'20.83%');assert.equal(await p.locator('#print-archive .tou-deep strong').isVisible(),true);assert.match(await p.locator('#print-archive .share-cell small').textContent(),/曲线计算/);
+ await p.emulateMedia({media:'screen'});await p.evaluate(()=>finishReportPrint());
+ const bill={id:'fictional-bill',hash:'b'.repeat(64),filename:'虚构.pdf',pages:[1],name:curves[0].name,account:curves[0].account,month:'2026-07',start:'2026-07-01',end:'2026-08-01',q:'1488',agency:'40',bill:'60',buckets:{'尖峰':'148.8','峰':'297.6','平':'446.4','谷':'520.8','深谷':'74.4'},meters:[],issues:[]};
+ await restore({version:'3.0.0',records:[bill],files:[]});
+ assert.equal(await p.locator('#archive .tou-valley strong').textContent(),'35.00%');assert.equal(await p.locator('#archive .tou-deep strong').textContent(),'5.00%');assert.match(await p.locator('#archive .share-cell small').textContent(),/账单口径/);
+ assert.deepEqual(errors,[]);assert.deepEqual(http,[]);fs.unlinkSync(tmp);await b.close();console.log('PASS curve-only quantities/shares, print copy, no fabricated bill fee, existing bill priority, zero HTTP');
+})().catch(e=>{console.error(e);process.exit(1)});

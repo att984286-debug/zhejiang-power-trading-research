@@ -300,15 +300,17 @@ class Store:
         data['files'].append(f);self.save(data);return f
     def report(self,package='rule-full',linkage='10',service_fee='0',pack=None):
         data=self.load(); bill_rows=aggregate(data['records'])
+        from pricing import calculate,PACK
         from curves import curve_months
+        from curve_structure import summarize_curve
         curves=curve_months(data.get('curve_records',[]),bill_rows)
+        for row in curves:row['curve_structure']=summarize_curve(row,pack or PACK)
         curve_keys={(r['account'],r['month']) for r in curves}
         rows=sorted([dict(r,source_type='bill') for r in bill_rows if (r['account'],r['month']) not in curve_keys]+curves,key=lambda r:(r['account'],r['month']))
         customers=[]
         for account in sorted({r['account'] for r in rows}):
             good=[r for r in rows if r['account']==account and not r['issues']]
             customers.append({'account':account,'verified_months':len(good),'q':str(sum((D(r['q']) for r in good),D(0))),'agency':str(sum((D(r['agency']) for r in good if r['agency'] is not None),D(0)))})
-        from pricing import calculate,PACK
         return {**data,'version':VERSION,'archive_version':data.get('version'),'scenario':calculate(rows,linkage,service_fee,package=package,pack=pack or PACK),'customers':customers,'months':rows,'bill_months':bill_rows,'package':package,'pricing_status':'按所提供模板测算',
             'pending':['7、8月按原表日前采购口径，其余月按实时，等待后续业务统一确认','服务费按当前选定套餐计取；佣金与返还尚未纳入'],
             'summary':{'accounts':len({r['account'] for r in rows}),'months':len(rows),'bills':len(data['records']),
