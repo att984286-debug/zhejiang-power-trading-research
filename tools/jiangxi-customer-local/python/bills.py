@@ -8,7 +8,7 @@ import pdfplumber
 from pypdf import PdfReader, PdfWriter
 
 VERSION = '3.0.0'
-PARSER_REVISION = 'multirow-totals-20261117'
+PARSER_REVISION = 'multirow-allocations-20261118'
 from meter_allocations import ratio_children,verify_allocations,prior_deduction
 from meter_rows import total_row_groups,merge_total_group
 KINDS = ['尖峰','峰','平','谷','深谷']
